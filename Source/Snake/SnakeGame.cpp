@@ -7,11 +7,25 @@
 
 const int SnakeGame::CELL_SIZE = 32;
 
+const Vector2 SnakeGame::NORTH = Vector2(0, -1); // In SDL +y faces down
+const Vector2 SnakeGame::EAST  = Vector2(1, 0);
+const Vector2 SnakeGame::SOUTH = Vector2(0, 1);
+const Vector2 SnakeGame::WEST  = Vector2(-1, 0);
+
+typedef const int Command;
+Command MOVE_NORTH = SDL_SCANCODE_UP;
+Command MOVE_EAST  = SDL_SCANCODE_RIGHT;
+Command MOVE_SOUTH = SDL_SCANCODE_DOWN;
+Command MOVE_WEST  = SDL_SCANCODE_LEFT;
+
 SnakeGame::SnakeGame()
 	: m_numRows(0)
 	, m_numCols(0)
 {
 	static_assert(CELL_SIZE > 0, "Cell size is too small");
+
+	m_pInputDir = &EAST;
+	m_pSnakeDir = m_pInputDir;
 }
 
 bool SnakeGame::Init()
@@ -34,6 +48,38 @@ bool SnakeGame::Init()
 void SnakeGame::Shutdown()
 {
 	ShutdownSDL();
+}
+
+const Vector2* SnakeGame::GetInputDirection(const Uint8* pKeyState)
+{
+	const Vector2* pInput = NULL;
+
+	if (pKeyState[MOVE_NORTH])
+	{
+		pInput = &NORTH;
+	}
+	if (pKeyState[MOVE_EAST])
+	{
+		pInput = &EAST;
+	}
+	if (pKeyState[MOVE_SOUTH])
+	{
+		pInput = &SOUTH;
+	}
+	if (pKeyState[MOVE_WEST])
+	{
+		pInput = &WEST;
+	}
+
+	return pInput;
+}
+
+bool SnakeGame::ValidInputDirection(const Vector2& input)
+{
+	assert(m_pSnakeDir);
+
+	// Cannot be opposite to our current direction
+	return Vector2::Dot(*m_pSnakeDir, input) != -1.0f;
 }
 
 void SnakeGame::ProcessInput()
@@ -59,12 +105,23 @@ void SnakeGame::ProcessInput()
 	{
 		Terminate();
 	}
+
+	// See if player wants to turn snake
+	const Vector2* pInput = GetInputDirection(pState);
+
+	if (pInput && ValidInputDirection(*pInput))
+	{
+		m_pInputDir = pInput;
+	}
 }
 
 void SnakeGame::Update()
 {
 	AdvanceTimestep();
 	float deltaTime = GetDeltaTime();
+
+	printf("SnakeDir: (%f, %f) InputDir: (%f, %f)\n",
+		m_pSnakeDir->x, m_pSnakeDir->y, m_pInputDir->x, m_pInputDir->y);
 }
 
 void SnakeGame::Render()
