@@ -4,6 +4,7 @@
 #include "../Engine/SDLAppRenderer.h"
 
 #include <cstdio>
+#include <cassert>
 
 // How many cells it covers per second
 const int SNAKE_SPEED = 5;
@@ -15,11 +16,15 @@ Snake::Snake(const Vector2& dir, int worldWidth, int worldHeight)
 	: m_pDir(&dir)
 	, m_timeSinceLastMove(0.0f)
 {
-	// Center snake in world
-	m_pos.x = static_cast<float>(worldWidth / 2);
-	m_pos.y = static_cast<float>(worldHeight / 2);
+	// Allocate segments
+	m_segments.resize(worldWidth * worldHeight);
 
-	printf("SnakePos: (%f, %f)\n", m_pos.x, m_pos.y);
+	// Create head
+	m_numSegments = 1;
+	// Center snake in world
+	GetHead().position = Vector2(worldWidth / 2.0f, worldHeight / 2.0f);
+
+	printf("SnakePos: (%f, %f)\n", GetHead().position.x, GetHead().position.y);
 }
 
 void Snake::Update(const Vector2& inputDir, float deltaTime)
@@ -32,10 +37,12 @@ void Snake::Update(const Vector2& inputDir, float deltaTime)
 	{
 		m_timeSinceLastMove += SNAKE_DELAY;
 
-		m_pos += inputDir;
+		Segment& head = GetHead();
+
+		head.position += inputDir;
 		m_pDir = &inputDir;
 
-		printf("Moving snake (%f, %f)\n", m_pos.x, m_pos.y);
+		printf("Moving snake (%f, %f)\n", head.position.x, head.position.y);
 	}
 }
 
@@ -45,13 +52,15 @@ void Snake::Render(const SDLAppRenderer& renderer) const
 	#define OUTER_COLOUR 0, 103, 65, 255
 	#define INNER_COLOUR 0, 146, 64, 255
 
+	const Vector2& headPos = GetHeadPosition();
+
 	// Draw outer
 	renderer.SetDrawColour(OUTER_COLOUR);
-	renderer.FillRect(renderer.WorldToScreen(m_pos.x, m_pos.y, 1, 1));
+	renderer.FillRect(renderer.WorldToScreen(headPos.x, headPos.y, 1, 1));
 
 	// Draw inner
 	const float innerScale = .8f;
-	Vector2 centeredPos = Math::GetCenteredPosition(m_pos, innerScale, innerScale);
+	Vector2 centeredPos = Math::GetCenteredPosition(headPos, innerScale, innerScale);
 	
 	renderer.SetDrawColour(INNER_COLOUR);
 	
@@ -62,4 +71,11 @@ void Snake::Render(const SDLAppRenderer& renderer) const
 		innerScale,
 		innerScale)
 	);
+}
+
+Snake::Segment& Snake::GetHead()
+{
+	assert(m_numSegments > 0 && m_segments.size() > 0);
+
+	return m_segments[0];
 }
