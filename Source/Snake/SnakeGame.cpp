@@ -19,9 +19,16 @@ Command MOVE_EAST  = SDL_SCANCODE_RIGHT;
 Command MOVE_SOUTH = SDL_SCANCODE_DOWN;
 Command MOVE_WEST  = SDL_SCANCODE_LEFT;
 
+// How many cells it covers per second
+const int SNAKE_SPEED = 5;
+
+// Delay between moves in seconds
+const float SNAKE_DELAY = 1.0f / SNAKE_SPEED;
+
 SnakeGame::SnakeGame()
 	: m_numRows(0)
 	, m_numCols(0)
+	, m_timeSinceLastMove(0.0f)
 {
 	static_assert(CELL_SIZE > 0, "Cell size is too small");
 
@@ -127,10 +134,17 @@ void SnakeGame::Update()
 	AdvanceTimestep();
 	float deltaTime = GetDeltaTime();
 
-	/*
-	printf("SnakeDir: (%f, %f) InputDir: (%f, %f)\n",
-		m_pSnakeDir->x, m_pSnakeDir->y, m_pInputDir->x, m_pInputDir->y);
-	*/
+	// Handle snake movement
+	m_timeSinceLastMove = m_timeSinceLastMove - deltaTime;
+	if (m_timeSinceLastMove <= 0.0f)
+	{
+		m_timeSinceLastMove += SNAKE_DELAY;
+
+		// Process move
+		printf("Moving snake\n");
+		m_pSnakeDir = m_pInputDir;
+		m_snakePos += *(m_pSnakeDir);
+	}
 }
 
 void SnakeGame::Render()

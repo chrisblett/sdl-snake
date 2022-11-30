@@ -41,6 +41,8 @@ private:
 	const Vector2* m_pInputDir;
 	const Vector2* m_pSnakeDir;
 	Vector2        m_snakePos;
+
+	float          m_timeSinceLastMove;
 	int            m_numRows;
 	int            m_numCols;
 };
