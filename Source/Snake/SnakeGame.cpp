@@ -20,10 +20,23 @@ Command MOVE_EAST  = SDL_SCANCODE_RIGHT;
 Command MOVE_SOUTH = SDL_SCANCODE_DOWN;
 Command MOVE_WEST  = SDL_SCANCODE_LEFT;
 
+// How many cells it covers per second
+const int SNAKE_SPEED = 5;
+
+// Delay between snake updates in seconds
+const float SNAKE_DELAY = 1.0f / SNAKE_SPEED;
+
+// Delay between grow command
+const float GROW_DELAY = SNAKE_DELAY;
+
+float g_lastGrowTime = 0.0f;
+
 SnakeGame::SnakeGame()
 	: m_worldWidth(0)
 	, m_worldHeight(0)
 	, m_pInputDir(&EAST)
+	, m_snakeCanGrow(0)
+	, m_nextUpdateTime(0.0f)
 {
 	static_assert(CELL_SIZE > 0, "Cell size is too small");
 }
@@ -116,6 +129,15 @@ void SnakeGame::ProcessInput()
 	{
 		m_pInputDir = pInput;
 	}
+
+	if (pState[SDL_SCANCODE_SPACE])
+	{
+		if (g_lastGrowTime <= 0.0f)
+		{
+			g_lastGrowTime = GROW_DELAY;
+			m_snakeCanGrow = true;
+		}
+	}
 }
 
 void SnakeGame::Update()
@@ -123,7 +145,18 @@ void SnakeGame::Update()
 	AdvanceTimestep();
 	float deltaTime = GetDeltaTime();
 
-	m_pSnake->Update(*m_pInputDir, deltaTime);
+	// Update timers
+	g_lastGrowTime   -= deltaTime;
+	m_nextUpdateTime -= deltaTime;
+
+	// Ready to update snake?
+	if (m_nextUpdateTime <= 0.0f)
+	{
+		m_nextUpdateTime += SNAKE_DELAY;
+		
+		m_pSnake->Update(*m_pInputDir, m_snakeCanGrow, deltaTime);
+		m_snakeCanGrow = false;
+	}
 }
 
 void SnakeGame::Render()

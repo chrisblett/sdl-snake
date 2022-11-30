@@ -10,7 +10,7 @@ class Snake
 public:
 	Snake(const Vector2& dir, int worldWidth, int worldHeight);
 
-	void Update(const Vector2& inputDir, float deltaTime);
+	void Update(const Vector2& inputDir, bool shouldGrow, float deltaTime);
 	void Render(const SDLAppRenderer&) const;
 
 	const Vector2& GetHeadPosition() const { return m_segments[0].position; }
@@ -26,8 +26,6 @@ private:
 	Segment& GetHead();
 
 	std::vector<Segment> m_segments;
-	size_t m_numSegments;
-
-	const Vector2* m_pDir;
-	float          m_timeSinceLastMove;
+	size_t               m_numSegments;
+	const Vector2*       m_pDir;
 };

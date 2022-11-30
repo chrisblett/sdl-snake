@@ -39,9 +39,9 @@ private:
 	static const Vector2 WEST;
 	
 	std::unique_ptr<Snake> m_pSnake;
-
-	const Vector2* m_pInputDir;
-
-	int m_worldWidth;
-	int m_worldHeight;
+	const Vector2*         m_pInputDir;
+	float                  m_nextUpdateTime; // Time until the next update
+	bool                   m_snakeCanGrow;
+	int                    m_worldWidth;
+	int                    m_worldHeight;
 };
