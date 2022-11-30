@@ -45,6 +45,9 @@
     <ClCompile Include="..\Engine\Math\Math.cpp">
       <Filter>Engine\Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Snake.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\Engine\SDLApp.h">
@@ -64,6 +67,9 @@
     </ClInclude>
     <ClInclude Include="..\Engine\Math\Math.h">
       <Filter>Engine\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Snake.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

@@ -2,6 +2,7 @@
 
 #include "../Engine/SDLApp.h"
 #include "../Engine/Math/Vector2.h"
+#include "../Snake/Snake.h"
 
 class SnakeGame : public SDLApp
 {
@@ -16,7 +17,6 @@ public:
 
 private:
 	void RenderGrid(const SDLAppRenderer&)  const;
-	void RenderSnake(const SDLAppRenderer&) const;
 
 	// Calculate the dimensions of the world given the width and height
 	// of the render region
@@ -37,12 +37,11 @@ private:
 	static const Vector2 EAST;
 	static const Vector2 SOUTH;
 	static const Vector2 WEST;
+	
+	std::unique_ptr<Snake> m_pSnake;
 
 	const Vector2* m_pInputDir;
-	const Vector2* m_pSnakeDir;
-	Vector2        m_snakePos;
 
-	float          m_timeSinceLastMove;
-	int            m_numRows;
-	int            m_numCols;
+	int m_worldWidth;
+	int m_worldHeight;
 };

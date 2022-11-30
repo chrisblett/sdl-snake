@@ -226,6 +226,7 @@ copy "$(SolutionDir)..\3rdParty\SDL\Lib\$(PlatformShortName)" "$(SolutionDir)..\
     <ClCompile Include="..\Engine\SDLAppRenderer.cpp" />
     <ClCompile Include="..\Engine\SDLWindow.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="Snake.cpp" />
     <ClCompile Include="SnakeGame.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -234,6 +235,7 @@ copy "$(SolutionDir)..\3rdParty\SDL\Lib\$(PlatformShortName)" "$(SolutionDir)..\
     <ClInclude Include="..\Engine\SDLApp.h" />
     <ClInclude Include="..\Engine\SDLAppRenderer.h" />
     <ClInclude Include="..\Engine\SDLWindow.h" />
+    <ClInclude Include="Snake.h" />
     <ClInclude Include="SnakeGame.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

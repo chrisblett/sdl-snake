@@ -5,6 +5,7 @@
 #include <SDL/SDL.h>
 #include <cmath>
 #include <cassert>
+#include <memory>
 
 const int SnakeGame::CELL_SIZE = 32;
 
@@ -19,21 +20,12 @@ Command MOVE_EAST  = SDL_SCANCODE_RIGHT;
 Command MOVE_SOUTH = SDL_SCANCODE_DOWN;
 Command MOVE_WEST  = SDL_SCANCODE_LEFT;
 
-// How many cells it covers per second
-const int SNAKE_SPEED = 5;
-
-// Delay between moves in seconds
-const float SNAKE_DELAY = 1.0f / SNAKE_SPEED;
-
 SnakeGame::SnakeGame()
-	: m_numRows(0)
-	, m_numCols(0)
-	, m_timeSinceLastMove(0.0f)
+	: m_worldWidth(0)
+	, m_worldHeight(0)
+	, m_pInputDir(&EAST)
 {
 	static_assert(CELL_SIZE > 0, "Cell size is too small");
-
-	m_pInputDir = &EAST;
-	m_pSnakeDir = m_pInputDir;
 }
 
 bool SnakeGame::Init()
@@ -50,11 +42,8 @@ bool SnakeGame::Init()
 	Vector2 worldOriginScreenSpace = CalculateRenderOrigin(winSize.w, winSize.h);
 	GetRenderer().SetWorldTransform(worldOriginScreenSpace, CELL_SIZE);
 
-	// Calculate snake position
-	m_snakePos.x = static_cast<float>(m_numCols / 2);
-	m_snakePos.y = static_cast<float>(m_numRows / 2);
-
-	printf("SnakePos: (%f, %f)\n", m_snakePos.x, m_snakePos.y);
+	// Create snake
+	m_pSnake = std::make_unique<Snake>(*m_pInputDir, m_worldWidth, m_worldHeight);
 
 	return true;
 }
@@ -90,10 +79,10 @@ const Vector2* SnakeGame::GetInputDirection(const Uint8* pKeyState)
 
 bool SnakeGame::ValidInputDirection(const Vector2& input)
 {
-	assert(m_pSnakeDir);
+	const Vector2& snakeDir = m_pSnake->GetDirection();
 
 	// Cannot be opposite to our current direction
-	return Vector2::Dot(*m_pSnakeDir, input) != -1.0f;
+	return Vector2::Dot(snakeDir, input) != -1.0f;
 }
 
 void SnakeGame::ProcessInput()
@@ -134,17 +123,7 @@ void SnakeGame::Update()
 	AdvanceTimestep();
 	float deltaTime = GetDeltaTime();
 
-	// Handle snake movement
-	m_timeSinceLastMove = m_timeSinceLastMove - deltaTime;
-	if (m_timeSinceLastMove <= 0.0f)
-	{
-		m_timeSinceLastMove += SNAKE_DELAY;
-
-		// Process move
-		printf("Moving snake\n");
-		m_pSnakeDir = m_pInputDir;
-		m_snakePos += *(m_pSnakeDir);
-	}
+	m_pSnake->Update(*m_pInputDir, deltaTime);
 }
 
 void SnakeGame::Render()
@@ -155,7 +134,7 @@ void SnakeGame::Render()
 	ClearScreen();
 
 	RenderGrid(renderer);
-	RenderSnake(renderer);
+	m_pSnake->Render(renderer);
 
 	SwapBuffers();
 }
@@ -166,10 +145,10 @@ void SnakeGame::RenderGrid(const SDLAppRenderer& renderer) const
 	renderer.SetDrawColour(255, 255, 255, 255);
 
 	// Draw row lines
-	for (int i = 0; i <= m_numRows; i++)
+	for (int i = 0; i <= m_worldHeight; i++)
 	{
 		Vector2 start(0, 1.0f * i);
-		Vector2 end(1.0f * m_numCols, 1.0f * i);
+		Vector2 end(1.0f * m_worldWidth, 1.0f * i);
 
 		renderer.DrawLine(
 			renderer.WorldToScreen(start),
@@ -178,10 +157,10 @@ void SnakeGame::RenderGrid(const SDLAppRenderer& renderer) const
 	}
 
 	// Draw column lines
-	for (int i = 0; i <= m_numCols; i++)
+	for (int i = 0; i <= m_worldWidth; i++)
 	{
 		Vector2 start(1.0f * i, 0);
-		Vector2 end(1.0f * i, 1.0f * m_numRows);
+		Vector2 end(1.0f * i, 1.0f * m_worldHeight);
 
 		renderer.DrawLine(
 			renderer.WorldToScreen(start),
@@ -190,46 +169,21 @@ void SnakeGame::RenderGrid(const SDLAppRenderer& renderer) const
 	}
 }
 
-void SnakeGame::RenderSnake(const SDLAppRenderer& renderer) const
-{
-	// R, G, B, A
-	#define OUTER_COLOUR 0, 103, 65, 255
-	#define INNER_COLOUR 0, 146, 64, 255
-
-	// Draw outer
-	renderer.SetDrawColour(OUTER_COLOUR);
-	renderer.FillRect(renderer.WorldToScreen(m_snakePos.x, m_snakePos.y, 1, 1));
-
-	// Draw inner
-	const float innerScale = .8f;
-	Vector2 centeredPos = Math::GetCenteredPosition(m_snakePos, innerScale, innerScale);
-
-	renderer.SetDrawColour(INNER_COLOUR);
-
-	// Move from top-left to midpoint of the cell and draw
-	renderer.FillRect(renderer.WorldToScreen(
-		centeredPos.x + .5f,
-		centeredPos.y + .5f,
-		innerScale,
-		innerScale)
-	);
-}
-
 void SnakeGame::CalculateWorldDimensions(int renderAreaW, int renderAreaH)
 {
 	// Calculate the number of cells (to the nearest integer) 
 	// that can fit within the given length of pixels. 
 	// Subtract a row and col to leave some space between the 
 	// boundary of the render area
-	m_numRows = static_cast<int>(std::roundf(1.0f * renderAreaH / CELL_SIZE)) - 1;
-	m_numCols = static_cast<int>(std::roundf(1.0f * renderAreaW / CELL_SIZE)) - 1;
+	m_worldWidth  = static_cast<int>(std::roundf(1.0f * renderAreaW / CELL_SIZE)) - 1;
+	m_worldHeight = static_cast<int>(std::roundf(1.0f * renderAreaH / CELL_SIZE)) - 1;
 }
 
 Vector2 SnakeGame::CalculateRenderOrigin(int renderAreaW, int renderAreaH) const
 {
 	// Calculate the total space left in the render area in both dimensions
-	int pixelGapX = renderAreaW - m_numCols * CELL_SIZE;
-	int pixelGapY = renderAreaH - m_numRows * CELL_SIZE;
+	int pixelGapX = renderAreaW - m_worldWidth  * CELL_SIZE;
+	int pixelGapY = renderAreaH - m_worldHeight * CELL_SIZE;
 
 	// Centre the view of the world
 	return Vector2(pixelGapX / 2.0f, pixelGapY / 2.0f);
