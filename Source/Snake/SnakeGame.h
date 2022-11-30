@@ -16,6 +16,7 @@ public:
 
 private:
 	void RenderGrid(const SDLAppRenderer&)  const;
+	void RenderSnake(const SDLAppRenderer&) const;
 
 	// Calculate the dimensions of the world given the width and height
 	// of the render region
@@ -39,6 +40,7 @@ private:
 
 	const Vector2* m_pInputDir;
 	const Vector2* m_pSnakeDir;
-	int m_numRows;
-	int m_numCols;
+	Vector2        m_snakePos;
+	int            m_numRows;
+	int            m_numCols;
 };

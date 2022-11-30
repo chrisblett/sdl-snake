@@ -1,5 +1,6 @@
 #include "SnakeGame.h"
 #include "../Engine/Math/Vector2.h"
+#include "../Engine/Math/Math.h"
 
 #include <SDL/SDL.h>
 #include <cmath>
@@ -7,10 +8,10 @@
 
 const int SnakeGame::CELL_SIZE = 32;
 
-const Vector2 SnakeGame::NORTH = Vector2(0, -1); // In SDL +y faces down
-const Vector2 SnakeGame::EAST  = Vector2(1, 0);
-const Vector2 SnakeGame::SOUTH = Vector2(0, 1);
-const Vector2 SnakeGame::WEST  = Vector2(-1, 0);
+const Vector2 SnakeGame::NORTH = Vector2( 0, -1); // In SDL +y faces down
+const Vector2 SnakeGame::EAST  = Vector2( 1,  0);
+const Vector2 SnakeGame::SOUTH = Vector2( 0,  1);
+const Vector2 SnakeGame::WEST  = Vector2(-1,  0);
 
 typedef const int Command;
 Command MOVE_NORTH = SDL_SCANCODE_UP;
@@ -41,6 +42,12 @@ bool SnakeGame::Init()
 
 	Vector2 worldOriginScreenSpace = CalculateRenderOrigin(winSize.w, winSize.h);
 	GetRenderer().SetWorldTransform(worldOriginScreenSpace, CELL_SIZE);
+
+	// Calculate snake position
+	m_snakePos.x = static_cast<float>(m_numCols / 2);
+	m_snakePos.y = static_cast<float>(m_numRows / 2);
+
+	printf("SnakePos: (%f, %f)\n", m_snakePos.x, m_snakePos.y);
 
 	return true;
 }
@@ -120,8 +127,10 @@ void SnakeGame::Update()
 	AdvanceTimestep();
 	float deltaTime = GetDeltaTime();
 
+	/*
 	printf("SnakeDir: (%f, %f) InputDir: (%f, %f)\n",
 		m_pSnakeDir->x, m_pSnakeDir->y, m_pInputDir->x, m_pInputDir->y);
+	*/
 }
 
 void SnakeGame::Render()
@@ -132,6 +141,7 @@ void SnakeGame::Render()
 	ClearScreen();
 
 	RenderGrid(renderer);
+	RenderSnake(renderer);
 
 	SwapBuffers();
 }
@@ -164,6 +174,31 @@ void SnakeGame::RenderGrid(const SDLAppRenderer& renderer) const
 			renderer.WorldToScreen(end)
 		);
 	}
+}
+
+void SnakeGame::RenderSnake(const SDLAppRenderer& renderer) const
+{
+	// R, G, B, A
+	#define OUTER_COLOUR 0, 103, 65, 255
+	#define INNER_COLOUR 0, 146, 64, 255
+
+	// Draw outer
+	renderer.SetDrawColour(OUTER_COLOUR);
+	renderer.FillRect(renderer.WorldToScreen(m_snakePos.x, m_snakePos.y, 1, 1));
+
+	// Draw inner
+	const float innerScale = .8f;
+	Vector2 centeredPos = Math::GetCenteredPosition(m_snakePos, innerScale, innerScale);
+
+	renderer.SetDrawColour(INNER_COLOUR);
+
+	// Move from top-left to midpoint of the cell and draw
+	renderer.FillRect(renderer.WorldToScreen(
+		centeredPos.x + .5f,
+		centeredPos.y + .5f,
+		innerScale,
+		innerScale)
+	);
 }
 
 void SnakeGame::CalculateWorldDimensions(int renderAreaW, int renderAreaH)

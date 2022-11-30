@@ -220,6 +220,7 @@ copy "$(SolutionDir)..\3rdParty\SDL\Lib\$(PlatformShortName)" "$(SolutionDir)..\
     </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="..\Engine\Math\Math.cpp" />
     <ClCompile Include="..\Engine\Math\Vector2.cpp" />
     <ClCompile Include="..\Engine\SDLApp.cpp" />
     <ClCompile Include="..\Engine\SDLAppRenderer.cpp" />
@@ -228,6 +229,7 @@ copy "$(SolutionDir)..\3rdParty\SDL\Lib\$(PlatformShortName)" "$(SolutionDir)..\
     <ClCompile Include="SnakeGame.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\Engine\Math\Math.h" />
     <ClInclude Include="..\Engine\Math\Vector2.h" />
     <ClInclude Include="..\Engine\SDLApp.h" />
     <ClInclude Include="..\Engine\SDLAppRenderer.h" />

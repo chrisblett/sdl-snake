@@ -13,8 +13,8 @@ SDL_Rect CreateRect(int x, int y, int width, int height)
 SDL_Rect CreateRect(const Vector2& pos, int width, int height)
 {
 	return CreateRect(
-		static_cast<int>(pos.x),
-		static_cast<int>(pos.y),
+		static_cast<int>(roundf(pos.x)),
+		static_cast<int>(roundf(pos.y)),
 		width,
 		height
 	);
@@ -47,11 +47,8 @@ void SDLAppRenderer::SetWorldTransform(const Vector2& screenSpaceOrigin,
 
 Vector2 SDLAppRenderer::WorldToScreen(const Vector2& pos) const
 {
-	// Round to nearest pixel
-	Vector2 screenPos = m_worldOriginScreenSpace +
-		Vector2(roundf(pos.x * m_worldToScreenScaleFactor),
-			    roundf(pos.y * m_worldToScreenScaleFactor)
-		);
+	Vector2 screenPos = m_worldOriginScreenSpace 
+		+ Vector2(pos.x * m_worldToScreenScaleFactor, pos.y * m_worldToScreenScaleFactor);
 
 	return screenPos;
 }
@@ -59,12 +56,16 @@ Vector2 SDLAppRenderer::WorldToScreen(const Vector2& pos) const
 SDL_Rect SDLAppRenderer::WorldToScreen(float x, float y,
 	float width, float height) const
 {
+	// Calculate position and dimensions of rect in screen space
 	Vector2 screenPos = WorldToScreen(Vector2(x, y));
+
+	float screenWidth  = width  * m_worldToScreenScaleFactor;
+	float screenHeight = height * m_worldToScreenScaleFactor;
 
 	SDL_Rect screenSpaceRect = CreateRect(
 		screenPos,
-		static_cast<int>(width  * m_worldToScreenScaleFactor),
-		static_cast<int>(height * m_worldToScreenScaleFactor)
+		static_cast<int>(roundf(screenWidth)),
+		static_cast<int>(roundf(screenHeight))
 	);
 
 	return screenSpaceRect;
