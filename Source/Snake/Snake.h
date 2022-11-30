@@ -22,6 +22,7 @@ private:
 		Vector2 position;
 	};
 
+	void Grow();
 	Segment& GetHead();
 
 	std::vector<Segment> m_segments;
