@@ -20,16 +20,15 @@ Command MOVE_EAST  = SDL_SCANCODE_RIGHT;
 Command MOVE_SOUTH = SDL_SCANCODE_DOWN;
 Command MOVE_WEST  = SDL_SCANCODE_LEFT;
 
-// How many cells it covers per second
-const int SNAKE_SPEED = 5;
+const int SNAKE_SPEED   = 5;				  // How many cells it covers per second
+const float SNAKE_DELAY = 1.0f / SNAKE_SPEED; // Delay between snake updates in seconds
 
-// Delay between snake updates in seconds
-const float SNAKE_DELAY = 1.0f / SNAKE_SPEED;
+#define ALLOW_FAKE_GROWTH 0
 
-// Delay between grow command
-const float GROW_DELAY = SNAKE_DELAY;
-
+#if ALLOW_FAKE_GROWTH
+const float GROW_DELAY = SNAKE_DELAY; // Delay between grow commands
 float g_lastGrowTime = 0.0f;
+#endif
 
 SnakeGame::SnakeGame()
 	: m_worldWidth(0)
@@ -130,6 +129,7 @@ void SnakeGame::ProcessInput()
 		m_pInputDir = pInput;
 	}
 
+#if ALLOW_FAKE_GROWTH
 	if (pState[SDL_SCANCODE_SPACE])
 	{
 		if (g_lastGrowTime <= 0.0f)
@@ -138,6 +138,7 @@ void SnakeGame::ProcessInput()
 			m_snakeCanGrow = true;
 		}
 	}
+#endif
 }
 
 void SnakeGame::Update()
@@ -146,7 +147,10 @@ void SnakeGame::Update()
 	float deltaTime = GetDeltaTime();
 
 	// Update timers
+#if ALLOW_FAKE_GROWTH
 	g_lastGrowTime   -= deltaTime;
+#endif
+
 	m_nextUpdateTime -= deltaTime;
 
 	// Ready to update snake?
