@@ -54,10 +54,29 @@ bool SnakeGame::Init()
 	Vector2 worldOriginScreenSpace = CalculateRenderOrigin(winSize.w, winSize.h);
 	GetRenderer().SetWorldTransform(worldOriginScreenSpace, CELL_SIZE);
 
+	// Create cells
+	m_cells.Resize(m_worldWidth, m_worldHeight);
+	for (int y = 0; y < m_cells.Height(); y++)
+	{
+		for (int x = 0; x < m_cells.Width(); x++)
+		{
+			Cell& curCell = m_cells.Get(x, y);
+			curCell.position.x = static_cast<float>(x);
+			curCell.position.y = static_cast<float>(y);
+			curCell.free = true;
+		}
+	}
+
 	// Create snake
 	m_pSnake = std::make_unique<Snake>(*m_pInputDir, m_worldWidth, m_worldHeight);
 
 	return true;
+}
+
+void SnakeGame::MoveTo(const Vector2& oldPos, const Vector2& newPos)
+{
+	m_cells.Get(static_cast<int>(oldPos.x), static_cast<int>(oldPos.y)).free = true;
+	m_cells.Get(static_cast<int>(newPos.x), static_cast<int>(newPos.y)).free = false;
 }
 
 void SnakeGame::Shutdown()
@@ -157,7 +176,7 @@ void SnakeGame::Update()
 	if (m_nextUpdateTime <= 0.0f)
 	{
 		m_nextUpdateTime += SNAKE_DELAY;
-		
+
 		m_pSnake->Update(*m_pInputDir, m_snakeCanGrow, deltaTime);
 		m_snakeCanGrow = false;
 	}

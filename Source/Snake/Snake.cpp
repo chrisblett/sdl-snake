@@ -2,6 +2,7 @@
 #include "../Engine/Math/Math.h"
 #include "../Engine/Math/Vector2.h"
 #include "../Engine/SDLAppRenderer.h"
+#include "../Snake/SnakeGame.h"
 
 #include <cstdio>
 #include <cassert>

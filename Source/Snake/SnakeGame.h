@@ -1,6 +1,7 @@
 #pragma once
 
 #include "../Engine/SDLApp.h"
+#include "../Engine/Array2D.h"
 #include "../Engine/Math/Vector2.h"
 #include "../Snake/Snake.h"
 
@@ -15,8 +16,10 @@ public:
 	virtual void Update()       override;
 	virtual void Render()       override;
 
+	void MoveTo(const Vector2& oldPos, const Vector2& newPos);
+
 private:
-	void RenderGrid(const SDLAppRenderer&)  const;
+	void RenderGrid(const SDLAppRenderer&) const;
 
 	// Calculate the dimensions of the world given the width and height
 	// of the render region
@@ -38,8 +41,15 @@ private:
 	static const Vector2 SOUTH;
 	static const Vector2 WEST;
 	
+	struct Cell
+	{
+		Vector2 position;
+		bool free;
+	};
+
 	std::unique_ptr<Snake> m_pSnake;
 	const Vector2*         m_pInputDir;
+	Array2D<Cell>		   m_cells;
 	float                  m_nextUpdateTime; // Time until the next update
 	bool                   m_snakeCanGrow;
 	int                    m_worldWidth;

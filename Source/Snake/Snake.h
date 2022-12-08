@@ -4,6 +4,7 @@
 #include <vector>
 
 class SDLAppRenderer;
+class SnakeGame;
 
 class Snake
 {

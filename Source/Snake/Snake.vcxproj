@@ -230,6 +230,7 @@ copy "$(SolutionDir)..\3rdParty\SDL\Lib\$(PlatformShortName)" "$(SolutionDir)..\
     <ClCompile Include="SnakeGame.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\Engine\Array2D.h" />
     <ClInclude Include="..\Engine\Math\Math.h" />
     <ClInclude Include="..\Engine\Math\Vector2.h" />
     <ClInclude Include="..\Engine\SDLApp.h" />
