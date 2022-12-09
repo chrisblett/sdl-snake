@@ -11,7 +11,7 @@ class Snake
 public:
 	Snake(const Vector2& dir, int worldWidth, int worldHeight);
 
-	void Update(const Vector2& inputDir, bool shouldGrow, float deltaTime);
+	void Update(SnakeGame& game, const Vector2& inputDir, bool shouldGrow, float deltaTime);
 	void Render(const SDLAppRenderer&) const;
 
 	const Vector2& GetHeadPosition() const { return m_segments[0].position; }

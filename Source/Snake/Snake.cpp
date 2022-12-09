@@ -15,8 +15,9 @@ Snake::Snake(const Vector2& dir, int worldWidth, int worldHeight)
 
 	// Create head
 	m_numSegments = 1;
+	
 	// Center snake in world
-	GetHead().position = Vector2(worldWidth / 2.0f, worldHeight / 2.0f);
+	GetHead().position = Vector2(static_cast<float>(worldWidth / 2), static_cast<float>(worldHeight / 2));
 
 	printf("SnakePos: (%f, %f)\n", GetHead().position.x, GetHead().position.y);
 
@@ -26,7 +27,7 @@ Snake::Snake(const Vector2& dir, int worldWidth, int worldHeight)
 	Grow();
 }
 
-void Snake::Update(const Vector2& inputDir, bool shouldGrow, float deltaTime)
+void Snake::Update(SnakeGame& game, const Vector2& inputDir, bool shouldGrow, float deltaTime)
 {
 	if (shouldGrow)
 	{
@@ -40,10 +41,16 @@ void Snake::Update(const Vector2& inputDir, bool shouldGrow, float deltaTime)
 		m_segments[i].position = m_segments[i - 1].position;
 	}
 
-	// Move head to new position
 	Segment& head = GetHead();
+	Vector2 oldHeadPos = head.position;
+
+	// Move head to new position
 	head.position += inputDir;
+
+	// Update direction
 	m_pDir = &inputDir;
+
+	game.MoveTo(oldHeadPos, head.position);
 
 	printf("Moving snake (%f, %f)\n", head.position.x, head.position.y);
 }

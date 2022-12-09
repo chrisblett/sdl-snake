@@ -75,8 +75,24 @@ bool SnakeGame::Init()
 
 void SnakeGame::MoveTo(const Vector2& oldPos, const Vector2& newPos)
 {
-	m_cells.Get(static_cast<int>(oldPos.x), static_cast<int>(oldPos.y)).free = true;
-	m_cells.Get(static_cast<int>(newPos.x), static_cast<int>(newPos.y)).free = false;
+	// For now we just decide not to update the cells' free flags if the snake goes
+	// 'out-of-bounds' (to avoid accessing outside the array), however in the final
+	// game, being out-of-bounds will result in a game over.
+	if (InWorldBounds(oldPos))
+	{
+		m_cells.Get(static_cast<int>(oldPos.x), static_cast<int>(oldPos.y)).free = true;
+	}
+
+	if (InWorldBounds(newPos))
+	{
+		m_cells.Get(static_cast<int>(newPos.x), static_cast<int>(newPos.y)).free = false;
+	}
+}
+
+bool SnakeGame::InWorldBounds(const Vector2& pos) const
+{
+	return (pos.x >= 0 && pos.x < m_worldWidth &&
+		(pos.y >= 0 && pos.y < m_worldHeight));
 }
 
 void SnakeGame::Shutdown()
@@ -177,7 +193,7 @@ void SnakeGame::Update()
 	{
 		m_nextUpdateTime += SNAKE_DELAY;
 
-		m_pSnake->Update(*m_pInputDir, m_snakeCanGrow, deltaTime);
+		m_pSnake->Update(*this, *m_pInputDir, m_snakeCanGrow, deltaTime);
 		m_snakeCanGrow = false;
 	}
 }
@@ -189,6 +205,7 @@ void SnakeGame::Render()
 	renderer.SetDrawColour(0, 0, 0, 255);
 	ClearScreen();
 
+	RenderCellInfo(renderer);
 	RenderGrid(renderer);
 	m_pSnake->Render(renderer);
 
@@ -222,6 +239,30 @@ void SnakeGame::RenderGrid(const SDLAppRenderer& renderer) const
 			renderer.WorldToScreen(start),
 			renderer.WorldToScreen(end)
 		);
+	}
+}
+
+void SnakeGame::RenderCellInfo(const SDLAppRenderer& renderer)
+{
+	for (int y = 0; y < m_cells.Height(); y++)
+	{
+		for (int x = 0; x < m_cells.Width(); x++)
+		{
+			// Colour each cell differently depending on if it's occupied
+			Cell& cell = m_cells.Get(x, y);
+			if (cell.free)
+			{
+				// Free cells are blue
+				renderer.SetDrawColour(0, 0, 32, 255);
+			}
+			else
+			{
+				// Occupied cells are red
+				renderer.SetDrawColour(32, 0, 0, 255);
+			}
+
+			renderer.FillRect(renderer.WorldToScreen(static_cast<float>(x), static_cast<float>(y), 1, 1));
+		}
 	}
 }
 

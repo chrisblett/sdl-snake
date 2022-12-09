@@ -18,8 +18,12 @@ public:
 
 	void MoveTo(const Vector2& oldPos, const Vector2& newPos);
 
+	// Returns true if the position is within the game area
+	bool InWorldBounds(const Vector2& pos) const;
+
 private:
 	void RenderGrid(const SDLAppRenderer&) const;
+	void RenderCellInfo(const SDLAppRenderer&);
 
 	// Calculate the dimensions of the world given the width and height
 	// of the render region
