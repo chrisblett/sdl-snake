@@ -14,6 +14,7 @@ public:
 	void Update(SnakeGame& game, const Vector2& inputDir, bool shouldGrow, float deltaTime);
 	void Render(const SDLAppRenderer&) const;
 
+
 	const Vector2& GetHeadPosition() const { return m_segments[0].position; }
 	const Vector2& GetDirection() const { return *m_pDir; }
 
@@ -24,6 +25,7 @@ private:
 	};
 
 	void Grow();
+	void Move(const Vector2& inputDir);
 	Segment& GetHead();
 
 	std::vector<Segment> m_segments;

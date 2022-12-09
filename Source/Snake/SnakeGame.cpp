@@ -73,26 +73,17 @@ bool SnakeGame::Init()
 	return true;
 }
 
-void SnakeGame::MoveTo(const Vector2& oldPos, const Vector2& newPos)
+void SnakeGame::OccupyCell(int x, int y)
 {
-	// For now we just decide not to update the cells' free flags if the snake goes
-	// 'out-of-bounds' (to avoid accessing outside the array), however in the final
-	// game, being out-of-bounds will result in a game over.
-	if (InWorldBounds(oldPos))
-	{
-		m_cells.Get(static_cast<int>(oldPos.x), static_cast<int>(oldPos.y)).free = true;
-	}
+	if(!InWorldBounds(x, y)) return;
 
-	if (InWorldBounds(newPos))
-	{
-		m_cells.Get(static_cast<int>(newPos.x), static_cast<int>(newPos.y)).free = false;
-	}
+	m_cells.Get(x, y).free = false;
 }
 
-bool SnakeGame::InWorldBounds(const Vector2& pos) const
+bool SnakeGame::InWorldBounds(int x, int y) const
 {
-	return (pos.x >= 0 && pos.x < m_worldWidth &&
-		(pos.y >= 0 && pos.y < m_worldHeight));
+	return (x >= 0 && x < m_worldWidth &&
+		   (y >= 0 && y < m_worldHeight));
 }
 
 void SnakeGame::Shutdown()
@@ -192,6 +183,15 @@ void SnakeGame::Update()
 	if (m_nextUpdateTime <= 0.0f)
 	{
 		m_nextUpdateTime += SNAKE_DELAY;
+
+		// Clear all cells
+		for (int y = 0; y < m_cells.Height(); y++)
+		{
+			for (int x = 0; x < m_cells.Width(); x++)
+			{
+				m_cells.Get(x, y).free = true;
+			}			
+		}
 
 		m_pSnake->Update(*this, *m_pInputDir, m_snakeCanGrow, deltaTime);
 		m_snakeCanGrow = false;

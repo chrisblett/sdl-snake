@@ -9,19 +9,16 @@
 
 Snake::Snake(const Vector2& dir, int worldWidth, int worldHeight)
 	: m_pDir(&dir)
+	, m_numSegments(1)
 {
 	// Allocate segments
 	m_segments.resize(worldWidth * worldHeight);
 
-	// Create head
-	m_numSegments = 1;
-	
 	// Center snake in world
 	GetHead().position = Vector2(static_cast<float>(worldWidth / 2), static_cast<float>(worldHeight / 2));
 
 	printf("SnakePos: (%f, %f)\n", GetHead().position.x, GetHead().position.y);
 
-	// Grow the snake a bit
 	Grow();
 	Grow();
 	Grow();
@@ -34,25 +31,14 @@ void Snake::Update(SnakeGame& game, const Vector2& inputDir, bool shouldGrow, fl
 		Grow();
 	}
 	
-	// Move the body first
-	for (int i = m_numSegments - 1; i > 0; i--)
+	Move(inputDir);
+
+	// Record occupied cells
+	for (size_t i = 0; i < m_numSegments; i++)
 	{
-		// Each segment moves to where its parent is
-		m_segments[i].position = m_segments[i - 1].position;
+		game.OccupyCell(static_cast<int>(m_segments[i].position.x),
+			static_cast<int>(m_segments[i].position.y));
 	}
-
-	Segment& head = GetHead();
-	Vector2 oldHeadPos = head.position;
-
-	// Move head to new position
-	head.position += inputDir;
-
-	// Update direction
-	m_pDir = &inputDir;
-
-	game.MoveTo(oldHeadPos, head.position);
-
-	printf("Moving snake (%f, %f)\n", head.position.x, head.position.y);
 }
 
 static void RenderSegment(const Vector2& segmentPos, const SDLAppRenderer& renderer)
@@ -86,6 +72,23 @@ void Snake::Render(const SDLAppRenderer& renderer) const
 	{
 		RenderSegment(m_segments[i].position, renderer);
 	}
+}
+
+void Snake::Move(const Vector2& inputDir)
+{
+	// Move the body first
+	for (size_t i = m_numSegments - 1; i > 0; i--)
+	{
+		// Each segment moves to where its parent is
+		m_segments[i].position = m_segments[i - 1].position;
+	}
+
+	// Move the head and update direction
+	Segment& head = GetHead();
+	head.position += inputDir;
+	m_pDir = &inputDir;
+
+	printf("Moving snake, head pos is (%f, %f)\n", head.position.x, head.position.y);
 }
 
 void Snake::Grow()

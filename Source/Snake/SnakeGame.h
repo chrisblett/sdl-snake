@@ -17,9 +17,10 @@ public:
 	virtual void Render()       override;
 
 	void MoveTo(const Vector2& oldPos, const Vector2& newPos);
+	void OccupyCell(int x, int y);
 
 	// Returns true if the position is within the game area
-	bool InWorldBounds(const Vector2& pos) const;
+	bool InWorldBounds(int x, int y) const;
 
 private:
 	void RenderGrid(const SDLAppRenderer&) const;
