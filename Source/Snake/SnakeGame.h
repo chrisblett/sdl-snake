@@ -16,7 +16,6 @@ public:
 	virtual void Update()       override;
 	virtual void Render()       override;
 
-	void MoveTo(const Vector2& oldPos, const Vector2& newPos);
 	void OccupyCell(int x, int y);
 
 	// Returns true if the position is within the game area
@@ -35,6 +34,8 @@ private:
 
 	static const Vector2* GetInputDirection(const Uint8* pKeyState);
 	bool ValidInputDirection(const Vector2& input);
+
+	void GenerateFood();
 
 	// Size of an individual cell in pixels
 	static const int CELL_SIZE;

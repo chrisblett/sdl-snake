@@ -221,6 +221,7 @@ copy "$(SolutionDir)..\3rdParty\SDL\Lib\$(PlatformShortName)" "$(SolutionDir)..\
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="..\Engine\Math\Math.cpp" />
+    <ClCompile Include="..\Engine\Math\Random.cpp" />
     <ClCompile Include="..\Engine\Math\Vector2.cpp" />
     <ClCompile Include="..\Engine\SDLApp.cpp" />
     <ClCompile Include="..\Engine\SDLAppRenderer.cpp" />
@@ -232,6 +233,7 @@ copy "$(SolutionDir)..\3rdParty\SDL\Lib\$(PlatformShortName)" "$(SolutionDir)..\
   <ItemGroup>
     <ClInclude Include="..\Engine\Array2D.h" />
     <ClInclude Include="..\Engine\Math\Math.h" />
+    <ClInclude Include="..\Engine\Math\Random.h" />
     <ClInclude Include="..\Engine\Math\Vector2.h" />
     <ClInclude Include="..\Engine\SDLApp.h" />
     <ClInclude Include="..\Engine\SDLAppRenderer.h" />

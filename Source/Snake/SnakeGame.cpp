@@ -1,11 +1,14 @@
 #include "SnakeGame.h"
 #include "../Engine/Math/Vector2.h"
 #include "../Engine/Math/Math.h"
+#include "../Engine/Math/Random.h"
 
 #include <SDL/SDL.h>
 #include <cmath>
 #include <cassert>
 #include <memory>
+#include <vector>
+#include <algorithm>
 
 const int SnakeGame::CELL_SIZE = 32;
 
@@ -45,6 +48,8 @@ bool SnakeGame::Init()
 	if (!InitSDL())
 		return false;
 
+	Random::Init();
+
 	SetWindowTitle("SDL Snake");
 
 	// Calculate world size according to window size
@@ -68,7 +73,9 @@ bool SnakeGame::Init()
 	}
 
 	// Create snake
-	m_pSnake = std::make_unique<Snake>(*m_pInputDir, m_worldWidth, m_worldHeight);
+	m_pSnake = std::make_unique<Snake>(*this, *m_pInputDir, m_worldWidth, m_worldHeight);
+
+	//GenerateFood();
 
 	return true;
 }
@@ -121,6 +128,28 @@ bool SnakeGame::ValidInputDirection(const Vector2& input)
 
 	// Cannot be opposite to our current direction
 	return Vector2::Dot(snakeDir, input) != -1.0f;
+}
+
+void SnakeGame::GenerateFood()
+{
+	// Get all the cells that are not occupied
+	std::vector<Cell*> pFreeCells;
+	pFreeCells.reserve(m_cells.Size());
+
+	for(int y = 0; y < m_cells.Height(); y++)
+	{
+		for(int x = 0; x < m_cells.Width(); x++)
+		{
+			Cell& curCell = m_cells.Get(x,y);
+			if(curCell.free)
+			{
+				pFreeCells.push_back(&curCell);
+			}
+		}
+	}
+	pFreeCells.shrink_to_fit();
+
+	// Select a random cell to place the food at
 }
 
 void SnakeGame::ProcessInput()

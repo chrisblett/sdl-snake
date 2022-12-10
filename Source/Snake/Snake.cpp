@@ -1,13 +1,13 @@
+#include "../Snake/SnakeGame.h"
 #include "../Snake/Snake.h"
 #include "../Engine/Math/Math.h"
 #include "../Engine/Math/Vector2.h"
 #include "../Engine/SDLAppRenderer.h"
-#include "../Snake/SnakeGame.h"
 
 #include <cstdio>
 #include <cassert>
 
-Snake::Snake(const Vector2& dir, int worldWidth, int worldHeight)
+Snake::Snake(SnakeGame& game, const Vector2& dir, int worldWidth, int worldHeight)
 	: m_pDir(&dir)
 	, m_numSegments(1)
 {
@@ -19,9 +19,7 @@ Snake::Snake(const Vector2& dir, int worldWidth, int worldHeight)
 
 	printf("SnakePos: (%f, %f)\n", GetHead().position.x, GetHead().position.y);
 
-	Grow();
-	Grow();
-	Grow();
+	RecordOccupiedCells(game);
 }
 
 void Snake::Update(SnakeGame& game, const Vector2& inputDir, bool shouldGrow, float deltaTime)
@@ -32,13 +30,7 @@ void Snake::Update(SnakeGame& game, const Vector2& inputDir, bool shouldGrow, fl
 	}
 	
 	Move(inputDir);
-
-	// Record occupied cells
-	for (size_t i = 0; i < m_numSegments; i++)
-	{
-		game.OccupyCell(static_cast<int>(m_segments[i].position.x),
-			static_cast<int>(m_segments[i].position.y));
-	}
+	RecordOccupiedCells(game);
 }
 
 static void RenderSegment(const Vector2& segmentPos, const SDLAppRenderer& renderer)
@@ -47,7 +39,7 @@ static void RenderSegment(const Vector2& segmentPos, const SDLAppRenderer& rende
 #define OUTER_COLOUR 0, 103, 65, 255
 #define INNER_COLOUR 0, 146, 64, 255
 
-// Draw outer
+	// Draw outer
 	renderer.SetDrawColour(OUTER_COLOUR);
 	renderer.FillRect(renderer.WorldToScreen(segmentPos.x, segmentPos.y, 1, 1));
 
@@ -119,6 +111,15 @@ void Snake::Grow()
 	m_numSegments++;
 
 	printf("Snake length is now: %d\n", m_numSegments);
+}
+
+void Snake::RecordOccupiedCells(SnakeGame& game)
+{
+	for (size_t i = 0; i < m_numSegments; i++)
+	{
+		game.OccupyCell(static_cast<int>(m_segments[i].position.x),
+			static_cast<int>(m_segments[i].position.y));
+	}
 }
 
 Snake::Segment& Snake::GetHead()
