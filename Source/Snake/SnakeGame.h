@@ -23,7 +23,7 @@ public:
 
 private:
 	void RenderGrid(const SDLAppRenderer&) const;
-	void RenderCellInfo(const SDLAppRenderer&);
+	void RenderCellInfo(const SDLAppRenderer&) const;
 
 	// Calculate the dimensions of the world given the width and height
 	// of the render region
@@ -33,7 +33,7 @@ private:
 	Vector2 CalculateRenderOrigin(int renderAreaW, int renderAreaH) const;
 
 	static const Vector2* GetInputDirection(const Uint8* pKeyState);
-	bool ValidInputDirection(const Vector2& input);
+	bool ValidInputDirection(const Vector2& input) const;
 
 	void GenerateFood();
 
@@ -46,7 +46,7 @@ private:
 	static const Vector2 EAST;
 	static const Vector2 SOUTH;
 	static const Vector2 WEST;
-	
+
 	struct Cell
 	{
 		Vector2 position;
@@ -54,8 +54,9 @@ private:
 	};
 
 	std::unique_ptr<Snake> m_pSnake;
-	const Vector2*         m_pInputDir;
 	Array2D<Cell>		   m_cells;
+	const Vector2*         m_pInputDir;
+	Cell*                  m_pFoodLocation;  // Cell that is holding the food
 	float                  m_nextUpdateTime; // Time until the next update
 	bool                   m_snakeCanGrow;
 	int                    m_worldWidth;

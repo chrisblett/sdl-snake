@@ -84,6 +84,14 @@ public:
 		return m_array[y * m_width + x];
 	}
 
+	const T& Get(int x, int y) const
+	{
+		assert(x >= 0 && x < m_width);
+		assert(y >= 0 && y < m_height);
+
+		return m_array[y * m_width + x];
+	}
+
 	int Width()  const { return m_width; }
 	int Height() const { return m_height; }
 	int Size()   const { return m_width * m_height; }

@@ -34,11 +34,12 @@ float g_lastGrowTime = 0.0f;
 #endif
 
 SnakeGame::SnakeGame()
-	: m_worldWidth(0)
-	, m_worldHeight(0)
-	, m_pInputDir(&EAST)
-	, m_snakeCanGrow(0)
+	: m_pInputDir(&EAST)
+	, m_pFoodLocation(nullptr)
 	, m_nextUpdateTime(0.0f)
+	, m_snakeCanGrow(false)
+	, m_worldWidth(0)
+	, m_worldHeight(0)
 {
 	static_assert(CELL_SIZE > 0, "Cell size is too small");
 }
@@ -75,7 +76,7 @@ bool SnakeGame::Init()
 	// Create snake
 	m_pSnake = std::make_unique<Snake>(*this, *m_pInputDir, m_worldWidth, m_worldHeight);
 
-	//GenerateFood();
+	GenerateFood();
 
 	return true;
 }
@@ -122,7 +123,7 @@ const Vector2* SnakeGame::GetInputDirection(const Uint8* pKeyState)
 	return pInput;
 }
 
-bool SnakeGame::ValidInputDirection(const Vector2& input)
+bool SnakeGame::ValidInputDirection(const Vector2& input) const
 {
 	const Vector2& snakeDir = m_pSnake->GetDirection();
 
@@ -149,7 +150,13 @@ void SnakeGame::GenerateFood()
 	}
 	pFreeCells.shrink_to_fit();
 
-	// Select a random cell to place the food at
+	assert(!pFreeCells.empty() && "No free cells available");
+
+	// Select a random free cell 
+	size_t index = Random::GetInt(0, pFreeCells.size() - 1);
+	
+	// Place the food at that cell
+	m_pFoodLocation = pFreeCells[index];
 }
 
 void SnakeGame::ProcessInput()
@@ -221,6 +228,8 @@ void SnakeGame::Update()
 				m_cells.Get(x, y).free = true;
 			}			
 		}
+		// Don't clear the cell that the food is at
+		m_pFoodLocation->free = false;
 
 		m_pSnake->Update(*this, *m_pInputDir, m_snakeCanGrow, deltaTime);
 		m_snakeCanGrow = false;
@@ -271,14 +280,14 @@ void SnakeGame::RenderGrid(const SDLAppRenderer& renderer) const
 	}
 }
 
-void SnakeGame::RenderCellInfo(const SDLAppRenderer& renderer)
+void SnakeGame::RenderCellInfo(const SDLAppRenderer& renderer) const
 {
 	for (int y = 0; y < m_cells.Height(); y++)
 	{
 		for (int x = 0; x < m_cells.Width(); x++)
 		{
 			// Colour each cell differently depending on if it's occupied
-			Cell& cell = m_cells.Get(x, y);
+			const Cell& cell = m_cells.Get(x, y);
 			if (cell.free)
 			{
 				// Free cells are blue
