@@ -4,14 +4,14 @@
 #include <vector>
 
 class SDLAppRenderer;
-class SnakeGame;
+class World;
 
 class Snake
 {
 public:
-	Snake(SnakeGame& game, const Vector2& dir, int worldWidth, int worldHeight);
+	Snake(World& game, const Vector2& dir, int worldWidth, int worldHeight);
 
-	void Update(SnakeGame& game, const Vector2& inputDir, bool shouldGrow, float deltaTime);
+	void Update(World& game, const Vector2& inputDir, bool shouldGrow);
 	void Render(const SDLAppRenderer&) const;
 
 	const Vector2& GetHeadPosition() const { return m_segments[0].position; }
@@ -25,7 +25,7 @@ private:
 
 	void Move(const Vector2& inputDir);
 	void Grow();
-	void RecordOccupiedCells(SnakeGame& game);
+	void RecordOccupiedCells(World& game);
 	Segment& GetHead();
 
 	std::vector<Segment> m_segments;

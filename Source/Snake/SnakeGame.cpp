@@ -1,4 +1,5 @@
 #include "SnakeGame.h"
+#include "World.h"
 #include "../Engine/Math/Vector2.h"
 #include "../Engine/Math/Math.h"
 #include "../Engine/Math/Random.h"
@@ -35,11 +36,8 @@ float g_lastGrowTime = 0.0f;
 
 SnakeGame::SnakeGame()
 	: m_pInputDir(&EAST)
-	, m_pFoodLocation(nullptr)
 	, m_nextUpdateTime(0.0f)
 	, m_snakeCanGrow(false)
-	, m_worldWidth(0)
-	, m_worldHeight(0)
 {
 	static_assert(CELL_SIZE > 0, "Cell size is too small");
 }
@@ -55,43 +53,18 @@ bool SnakeGame::Init()
 
 	// Calculate world size according to window size
 	const auto& winSize = GetWindowSize();
-	CalculateWorldDimensions(winSize.w, winSize.h);
+	
+	// Calculate the dimensions of the world given the width and height
+	// of the render region and accounting for some space
+	int worldWidth  = static_cast<int>(std::roundf(1.0f * winSize.w / CELL_SIZE)) - 1;
+	int worldHeight = static_cast<int>(std::roundf(1.0f * winSize.h / CELL_SIZE)) - 1;
 
-	Vector2 worldOriginScreenSpace = CalculateRenderOrigin(winSize.w, winSize.h);
+	m_pWorld = std::make_unique<World>(*m_pInputDir, worldWidth, worldHeight);
+
+	Vector2 worldOriginScreenSpace = CalculateRenderOrigin(winSize.w, winSize.h, worldWidth, worldHeight);
 	GetRenderer().SetWorldTransform(worldOriginScreenSpace, CELL_SIZE);
 
-	// Create cells
-	m_cells.Resize(m_worldWidth, m_worldHeight);
-	for (int y = 0; y < m_cells.Height(); y++)
-	{
-		for (int x = 0; x < m_cells.Width(); x++)
-		{
-			Cell& curCell = m_cells.Get(x, y);
-			curCell.position.x = static_cast<float>(x);
-			curCell.position.y = static_cast<float>(y);
-			curCell.free = true;
-		}
-	}
-
-	// Create snake
-	m_pSnake = std::make_unique<Snake>(*this, *m_pInputDir, m_worldWidth, m_worldHeight);
-
-	GenerateFood();
-
 	return true;
-}
-
-void SnakeGame::OccupyCell(int x, int y)
-{
-	if(!InWorldBounds(x, y)) return;
-
-	m_cells.Get(x, y).free = false;
-}
-
-bool SnakeGame::InWorldBounds(int x, int y) const
-{
-	return (x >= 0 && x < m_worldWidth &&
-		   (y >= 0 && y < m_worldHeight));
 }
 
 void SnakeGame::Shutdown()
@@ -125,38 +98,10 @@ const Vector2* SnakeGame::GetInputDirection(const Uint8* pKeyState)
 
 bool SnakeGame::ValidInputDirection(const Vector2& input) const
 {
-	const Vector2& snakeDir = m_pSnake->GetDirection();
+	const Vector2& snakeDir = m_pWorld->GetSnake()->GetDirection();
 
 	// Cannot be opposite to our current direction
 	return Vector2::Dot(snakeDir, input) != -1.0f;
-}
-
-void SnakeGame::GenerateFood()
-{
-	// Get all the cells that are not occupied
-	std::vector<Cell*> pFreeCells;
-	pFreeCells.reserve(m_cells.Size());
-
-	for(int y = 0; y < m_cells.Height(); y++)
-	{
-		for(int x = 0; x < m_cells.Width(); x++)
-		{
-			Cell& curCell = m_cells.Get(x,y);
-			if(curCell.free)
-			{
-				pFreeCells.push_back(&curCell);
-			}
-		}
-	}
-	pFreeCells.shrink_to_fit();
-
-	assert(!pFreeCells.empty() && "No free cells available");
-
-	// Select a random free cell 
-	size_t index = Random::GetInt(0, pFreeCells.size() - 1);
-	
-	// Place the food at that cell
-	m_pFoodLocation = pFreeCells[index];
 }
 
 void SnakeGame::ProcessInput()
@@ -220,6 +165,7 @@ void SnakeGame::Update()
 	{
 		m_nextUpdateTime += SNAKE_DELAY;
 
+		/*
 		// Clear all cells
 		for (int y = 0; y < m_cells.Height(); y++)
 		{
@@ -232,6 +178,10 @@ void SnakeGame::Update()
 		m_pFoodLocation->free = false;
 
 		m_pSnake->Update(*this, *m_pInputDir, m_snakeCanGrow, deltaTime);
+		*/
+
+		m_pWorld->Update(*m_pInputDir, m_snakeCanGrow);
+
 		m_snakeCanGrow = false;
 	}
 }
@@ -243,82 +193,17 @@ void SnakeGame::Render()
 	renderer.SetDrawColour(0, 0, 0, 255);
 	ClearScreen();
 
-	RenderCellInfo(renderer);
-	RenderGrid(renderer);
-	m_pSnake->Render(renderer);
+	m_pWorld->Render(renderer);
 
 	SwapBuffers();
 }
 
-void SnakeGame::RenderGrid(const SDLAppRenderer& renderer) const
-{
-	// Set grid colour
-	renderer.SetDrawColour(255, 255, 255, 255);
-
-	// Draw row lines
-	for (int i = 0; i <= m_worldHeight; i++)
-	{
-		Vector2 start(0, 1.0f * i);
-		Vector2 end(1.0f * m_worldWidth, 1.0f * i);
-
-		renderer.DrawLine(
-			renderer.WorldToScreen(start),
-			renderer.WorldToScreen(end)
-		);
-	}
-
-	// Draw column lines
-	for (int i = 0; i <= m_worldWidth; i++)
-	{
-		Vector2 start(1.0f * i, 0);
-		Vector2 end(1.0f * i, 1.0f * m_worldHeight);
-
-		renderer.DrawLine(
-			renderer.WorldToScreen(start),
-			renderer.WorldToScreen(end)
-		);
-	}
-}
-
-void SnakeGame::RenderCellInfo(const SDLAppRenderer& renderer) const
-{
-	for (int y = 0; y < m_cells.Height(); y++)
-	{
-		for (int x = 0; x < m_cells.Width(); x++)
-		{
-			// Colour each cell differently depending on if it's occupied
-			const Cell& cell = m_cells.Get(x, y);
-			if (cell.free)
-			{
-				// Free cells are blue
-				renderer.SetDrawColour(0, 0, 32, 255);
-			}
-			else
-			{
-				// Occupied cells are red
-				renderer.SetDrawColour(32, 0, 0, 255);
-			}
-
-			renderer.FillRect(renderer.WorldToScreen(static_cast<float>(x), static_cast<float>(y), 1, 1));
-		}
-	}
-}
-
-void SnakeGame::CalculateWorldDimensions(int renderAreaW, int renderAreaH)
-{
-	// Calculate the number of cells (to the nearest integer) 
-	// that can fit within the given length of pixels. 
-	// Subtract a row and col to leave some space between the 
-	// boundary of the render area
-	m_worldWidth  = static_cast<int>(std::roundf(1.0f * renderAreaW / CELL_SIZE)) - 1;
-	m_worldHeight = static_cast<int>(std::roundf(1.0f * renderAreaH / CELL_SIZE)) - 1;
-}
-
-Vector2 SnakeGame::CalculateRenderOrigin(int renderAreaW, int renderAreaH) const
+Vector2 SnakeGame::CalculateRenderOrigin(int renderAreaW, int renderAreaH,
+	int worldWidth, int worldHeight) const
 {
 	// Calculate the total space left in the render area in both dimensions
-	int pixelGapX = renderAreaW - m_worldWidth  * CELL_SIZE;
-	int pixelGapY = renderAreaH - m_worldHeight * CELL_SIZE;
+	int pixelGapX = renderAreaW - worldWidth  * CELL_SIZE;
+	int pixelGapY = renderAreaH - worldHeight * CELL_SIZE;
 
 	// Centre the view of the world
 	return Vector2(pixelGapX / 2.0f, pixelGapY / 2.0f);

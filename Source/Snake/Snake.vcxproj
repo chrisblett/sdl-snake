@@ -229,6 +229,7 @@ copy "$(SolutionDir)..\3rdParty\SDL\Lib\$(PlatformShortName)" "$(SolutionDir)..\
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Snake.cpp" />
     <ClCompile Include="SnakeGame.cpp" />
+    <ClCompile Include="World.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\Engine\Array2D.h" />
@@ -240,6 +241,7 @@ copy "$(SolutionDir)..\3rdParty\SDL\Lib\$(PlatformShortName)" "$(SolutionDir)..\
     <ClInclude Include="..\Engine\SDLWindow.h" />
     <ClInclude Include="Snake.h" />
     <ClInclude Include="SnakeGame.h" />
+    <ClInclude Include="World.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

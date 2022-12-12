@@ -1,5 +1,5 @@
-#include "../Snake/SnakeGame.h"
-#include "../Snake/Snake.h"
+#include "Snake.h"
+#include "World.h"
 #include "../Engine/Math/Math.h"
 #include "../Engine/Math/Vector2.h"
 #include "../Engine/SDLAppRenderer.h"
@@ -7,7 +7,7 @@
 #include <cstdio>
 #include <cassert>
 
-Snake::Snake(SnakeGame& game, const Vector2& dir, int worldWidth, int worldHeight)
+Snake::Snake(World& world, const Vector2& dir, int worldWidth, int worldHeight)
 	: m_pDir(&dir)
 	, m_numSegments(1)
 {
@@ -17,12 +17,12 @@ Snake::Snake(SnakeGame& game, const Vector2& dir, int worldWidth, int worldHeigh
 	// Center snake in world
 	GetHead().position = Vector2(static_cast<float>(worldWidth / 2), static_cast<float>(worldHeight / 2));
 
-	printf("SnakePos: (%f, %f)\n", GetHead().position.x, GetHead().position.y);
+	printf("Snake starting pos: (%f, %f)\n", GetHead().position.x, GetHead().position.y);
 
-	RecordOccupiedCells(game);
+	RecordOccupiedCells(world);
 }
 
-void Snake::Update(SnakeGame& game, const Vector2& inputDir, bool shouldGrow, float deltaTime)
+void Snake::Update(World& world, const Vector2& inputDir, bool shouldGrow)
 {
 	if (shouldGrow)
 	{
@@ -30,7 +30,7 @@ void Snake::Update(SnakeGame& game, const Vector2& inputDir, bool shouldGrow, fl
 	}
 	
 	Move(inputDir);
-	RecordOccupiedCells(game);
+	RecordOccupiedCells(world);
 }
 
 static void RenderSegment(const Vector2& segmentPos, const SDLAppRenderer& renderer)
@@ -113,12 +113,14 @@ void Snake::Grow()
 	printf("Snake length is now: %d\n", m_numSegments);
 }
 
-void Snake::RecordOccupiedCells(SnakeGame& game)
+void Snake::RecordOccupiedCells(World& world)
 {
 	for (size_t i = 0; i < m_numSegments; i++)
 	{
-		game.OccupyCell(static_cast<int>(m_segments[i].position.x),
-			static_cast<int>(m_segments[i].position.y));
+		world.OccupyCell(
+			static_cast<int>(m_segments[i].position.x),
+			static_cast<int>(m_segments[i].position.y)
+		);
 	}
 }
 

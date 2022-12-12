@@ -51,6 +51,9 @@
     <ClCompile Include="..\Engine\Math\Random.cpp">
       <Filter>Engine\Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="World.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\Engine\SDLApp.h">
@@ -79,6 +82,9 @@
     </ClInclude>
     <ClInclude Include="..\Engine\Math\Random.h">
       <Filter>Engine\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="World.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
