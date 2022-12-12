@@ -11,6 +11,7 @@ class World
 {
 public:
 	World(const Vector2& snakeInputDir, int width, int height);
+	~World() { printf("World destroyed\n"); }
 
 	void Update(const Vector2& snakeInputDir, bool snakeShouldGrow);
 	void OccupyCell(int x, int y);
@@ -30,12 +31,12 @@ private:
 	struct Cell
 	{
 		Vector2 position;
-		bool free;
+		bool free; // Not occupied by the snake or food
 	};
 
 	std::unique_ptr<Snake> m_pSnake;
 	Array2D<Cell>          m_cells;
-	Cell*                  m_pFoodLocation;  // Cell that is holding the food
+	Cell*                  m_pFoodLocation; // Cell that is holding the food
 	int                    m_worldWidth;
 	int                    m_worldHeight;
 };

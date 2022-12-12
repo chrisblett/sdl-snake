@@ -29,6 +29,8 @@ World::World(const Vector2& snakeInputDir, int width, int height)
 
 void World::Update(const Vector2& snakeInputDir, bool snakeShouldGrow)
 {
+	assert(m_pFoodLocation);
+
 	// Clear all cells
 	for (int y = 0; y < m_cells.Height(); y++)
 	{
@@ -37,15 +39,22 @@ void World::Update(const Vector2& snakeInputDir, bool snakeShouldGrow)
 			m_cells.Get(x, y).free = true;
 		}
 	}
-
 	// Don't lose data about the food
 	m_pFoodLocation->free = false;
 
 	m_pSnake->Update(*this, snakeInputDir, snakeShouldGrow);
+
+	// Has the food been eaten?
+	if (m_pSnake->GetHeadPosition() == m_pFoodLocation->position)
+	{
+		printf("Snake ate food\n");
+		GenerateFood();
+	}
 }
 
 void World::OccupyCell(int x, int y)
 {
+	//TODO: Should change this to an assert in the final game
 	if (!InBounds(x, y)) return;
 
 	m_cells.Get(x, y).free = false;
@@ -53,8 +62,8 @@ void World::OccupyCell(int x, int y)
 
 bool World::InBounds(int x, int y) const
 {
-	return (x >= 0 && x < m_worldWidth &&
-		(y >= 0 && y < m_worldHeight));
+	return (x >= 0 && x < m_worldWidth) &&
+		(y >= 0 && y < m_worldHeight);
 }
 
 void World::Render(const SDLAppRenderer& renderer) const
@@ -145,6 +154,7 @@ void World::GenerateFood()
 	// Select a random free cell 
 	size_t index = Random::GetInt(0, pFreeCells.size() - 1);
 
-	// Place the food at that cell
+	// 'Place' the food at that cell
 	m_pFoodLocation = pFreeCells[index];
+	m_pFoodLocation->free = false;
 }

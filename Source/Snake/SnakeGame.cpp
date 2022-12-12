@@ -165,23 +165,7 @@ void SnakeGame::Update()
 	{
 		m_nextUpdateTime += SNAKE_DELAY;
 
-		/*
-		// Clear all cells
-		for (int y = 0; y < m_cells.Height(); y++)
-		{
-			for (int x = 0; x < m_cells.Width(); x++)
-			{
-				m_cells.Get(x, y).free = true;
-			}			
-		}
-		// Don't clear the cell that the food is at
-		m_pFoodLocation->free = false;
-
-		m_pSnake->Update(*this, *m_pInputDir, m_snakeCanGrow, deltaTime);
-		*/
-
 		m_pWorld->Update(*m_pInputDir, m_snakeCanGrow);
-
 		m_snakeCanGrow = false;
 	}
 }
