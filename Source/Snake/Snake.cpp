@@ -10,6 +10,7 @@
 Snake::Snake(World& world, const Vector2& dir, int worldWidth, int worldHeight)
 	: m_pDir(&dir)
 	, m_numSegments(1)
+	, m_growCounter(0)
 {
 	// Allocate segments
 	m_segments.resize(worldWidth * worldHeight);
@@ -22,9 +23,10 @@ Snake::Snake(World& world, const Vector2& dir, int worldWidth, int worldHeight)
 	RecordOccupiedCells(world);
 }
 
-void Snake::Update(World& world, const Vector2& inputDir, bool shouldGrow)
+void Snake::Update(World& world, const Vector2& inputDir)
 {
-	if (shouldGrow)
+	// Does the snake need to grow?
+	if (m_growCounter > 0)
 	{
 		Grow();
 	}
@@ -66,6 +68,12 @@ void Snake::Render(const SDLAppRenderer& renderer) const
 	}
 }
 
+void Snake::EatFood(int growthValue)
+{
+	m_growCounter += growthValue;
+	printf("Snake ate food, snake must grow %d times!\n", m_growCounter);
+}
+
 void Snake::Move(const Vector2& inputDir)
 {
 	// Move the body first
@@ -85,7 +93,8 @@ void Snake::Move(const Vector2& inputDir)
 
 void Snake::Grow()
 {
-	assert(m_numSegments > 0);
+	assert(m_growCounter > 0);
+	assert(m_numSegments > 0 && m_numSegments < m_segments.size());
 
 	const size_t lastSegmentIndex = m_numSegments - 1;
 	const Vector2& lastSegmentPos = m_segments[lastSegmentIndex].position;
@@ -111,6 +120,8 @@ void Snake::Grow()
 	m_numSegments++;
 
 	printf("Snake length is now: %d\n", m_numSegments);
+
+	m_growCounter--;
 }
 
 void Snake::RecordOccupiedCells(World& world)

@@ -4,6 +4,8 @@
 
 #include <memory>
 
+const int FOOD_VALUE = 5;
+
 World::World(const Vector2& snakeInputDir, int width, int height)
 	: m_cells(width, height)
 	, m_pFoodLocation(nullptr)
@@ -27,7 +29,7 @@ World::World(const Vector2& snakeInputDir, int width, int height)
 	GenerateFood();
 }
 
-void World::Update(const Vector2& snakeInputDir, bool snakeShouldGrow)
+void World::Update(const Vector2& snakeInputDir, bool fakeGrow)
 {
 	assert(m_pFoodLocation);
 
@@ -42,13 +44,18 @@ void World::Update(const Vector2& snakeInputDir, bool snakeShouldGrow)
 	// Don't lose data about the food
 	m_pFoodLocation->free = false;
 
-	m_pSnake->Update(*this, snakeInputDir, snakeShouldGrow);
+	m_pSnake->Update(*this, snakeInputDir);
 
 	// Has the food been eaten?
 	if (m_pSnake->GetHeadPosition() == m_pFoodLocation->position)
 	{
-		printf("Snake ate food\n");
+		m_pSnake->EatFood(FOOD_VALUE);
 		GenerateFood();
+	}
+
+	if (fakeGrow)
+	{
+		m_pSnake->EatFood(1);
 	}
 }
 

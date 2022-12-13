@@ -13,7 +13,7 @@ public:
 	World(const Vector2& snakeInputDir, int width, int height);
 	~World() { printf("World destroyed\n"); }
 
-	void Update(const Vector2& snakeInputDir, bool snakeShouldGrow);
+	void Update(const Vector2& snakeInputDir, bool fakeGrow);
 	void OccupyCell(int x, int y);
 
 	// Returns true if the position is within the world limits

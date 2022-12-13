@@ -37,5 +37,4 @@ private:
 	std::unique_ptr<World> m_pWorld;
 	const Vector2*         m_pInputDir;
 	float                  m_nextUpdateTime; // Time until the next update
-	bool                   m_snakeCanGrow;
 };

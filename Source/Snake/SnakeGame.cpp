@@ -11,7 +11,7 @@
 #include <vector>
 #include <algorithm>
 
-const int SnakeGame::CELL_SIZE = 32;
+const int SnakeGame::CELL_SIZE = 128;
 
 const Vector2 SnakeGame::NORTH = Vector2( 0, -1); // In SDL +y faces down
 const Vector2 SnakeGame::EAST  = Vector2( 1,  0);
@@ -24,11 +24,12 @@ Command MOVE_EAST  = SDL_SCANCODE_RIGHT;
 Command MOVE_SOUTH = SDL_SCANCODE_DOWN;
 Command MOVE_WEST  = SDL_SCANCODE_LEFT;
 
-const int SNAKE_SPEED   = 5;				  // How many cells it covers per second
+const int SNAKE_SPEED   = 7;				  // How many cells it covers per second
 const float SNAKE_DELAY = 1.0f / SNAKE_SPEED; // Delay between snake updates in seconds
 
-#define ALLOW_FAKE_GROWTH 0
+#define ALLOW_FAKE_GROWTH 1
 
+bool g_fakeGrowth = false;
 #if ALLOW_FAKE_GROWTH
 const float GROW_DELAY = SNAKE_DELAY; // Delay between grow commands
 float g_lastGrowTime = 0.0f;
@@ -37,7 +38,6 @@ float g_lastGrowTime = 0.0f;
 SnakeGame::SnakeGame()
 	: m_pInputDir(&EAST)
 	, m_nextUpdateTime(0.0f)
-	, m_snakeCanGrow(false)
 {
 	static_assert(CELL_SIZE > 0, "Cell size is too small");
 }
@@ -142,7 +142,7 @@ void SnakeGame::ProcessInput()
 		if (g_lastGrowTime <= 0.0f)
 		{
 			g_lastGrowTime = GROW_DELAY;
-			m_snakeCanGrow = true;
+			g_fakeGrowth = true;
 		}
 	}
 #endif
@@ -165,8 +165,8 @@ void SnakeGame::Update()
 	{
 		m_nextUpdateTime += SNAKE_DELAY;
 
-		m_pWorld->Update(*m_pInputDir, m_snakeCanGrow);
-		m_snakeCanGrow = false;
+		m_pWorld->Update(*m_pInputDir, g_fakeGrowth);
+		g_fakeGrowth = false;
 	}
 }
 
