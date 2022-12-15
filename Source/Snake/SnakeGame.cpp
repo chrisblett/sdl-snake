@@ -47,6 +47,9 @@ bool SnakeGame::Init()
 	if (!InitSDL())
 		return false;
 
+	// Load textures
+	//GetGraphics().LoadTexture(...)
+
 	Random::Init();
 
 	SetWindowTitle("SDL Snake");
@@ -62,7 +65,7 @@ bool SnakeGame::Init()
 	m_pWorld = std::make_unique<World>(*m_pInputDir, worldWidth, worldHeight);
 
 	Vector2 worldOriginScreenSpace = CalculateRenderOrigin(winSize.w, winSize.h, worldWidth, worldHeight);
-	GetRenderer().SetWorldTransform(worldOriginScreenSpace, CELL_SIZE);
+	GetGraphics().GetRenderer().SetWorldTransform(worldOriginScreenSpace, CELL_SIZE);
 
 	return true;
 }
@@ -172,14 +175,14 @@ void SnakeGame::Update()
 
 void SnakeGame::Render()
 {
-	auto& renderer = GetRenderer();
+	auto& renderer = GetGraphics().GetRenderer();
 
 	renderer.SetDrawColour(0, 0, 0, 255);
-	ClearScreen();
+	renderer.Clear();
 
 	m_pWorld->Render(renderer);
 
-	SwapBuffers();
+	renderer.SwapBuffers();
 }
 
 Vector2 SnakeGame::CalculateRenderOrigin(int renderAreaW, int renderAreaH,

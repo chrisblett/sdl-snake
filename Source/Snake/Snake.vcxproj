@@ -233,6 +233,7 @@ copy "$(SolutionDir)..\3rdParty\SDL\Lib\$(PlatformShortName)" "$(SolutionDir)..\
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\Engine\Array2D.h" />
+    <ClInclude Include="..\Engine\Graphics.h" />
     <ClInclude Include="..\Engine\Math\Math.h" />
     <ClInclude Include="..\Engine\Math\Random.h" />
     <ClInclude Include="..\Engine\Math\Vector2.h" />

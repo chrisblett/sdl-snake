@@ -53,7 +53,7 @@ void World::Update(const Vector2& snakeInputDir, bool fakeGrow)
 	// Don't lose data about the food
 	m_pFoodLocation->free = false;
 
-	m_pSnake->Update(*this, snakeInputDir);
+	//m_pSnake->Update(*this, snakeInputDir);
 
 	// Has the food been eaten?
 	if (m_pSnake->GetHeadPosition() == m_pFoodLocation->position)
@@ -112,7 +112,7 @@ void World::Render(const SDLAppRenderer& renderer) const
 	// Debug drawing
 	//RenderCellInfo(renderer);
 	RenderGrid(renderer);
-	m_pSnake->Render(renderer);
+	//m_pSnake->Render(renderer);
 }
 
 void World::RenderCellInfo(const SDLAppRenderer& renderer) const

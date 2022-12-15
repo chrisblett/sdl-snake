@@ -3,6 +3,7 @@
 #include "SDLWindow.h"
 
 #include <SDL/SDL.h>
+#include <SDL/SDL_image.h>
 #include <cstdio>
 #include <memory>
 
@@ -67,8 +68,14 @@ bool SDLApp::InitSDL()
 		return false;
 	}
 
+	if (IMG_Init(IMG_INIT_PNG) == 0)
+	{
+		SDL_Log("Failed to initialise SDL_image: %s", IMG_GetError());
+		return false;
+	}
+
 	m_pWindow   = std::make_unique<SDLWindow>(pWindow);
-	m_pRenderer = std::make_unique<SDLAppRenderer>(pRenderer);
+	m_pGraphics = std::make_unique<Graphics>(pRenderer);
 
 	return true;
 }
@@ -76,9 +83,10 @@ bool SDLApp::InitSDL()
 void SDLApp::ShutdownSDL()
 {
 	// Deallocate in reverse order of initialisation
-	m_pRenderer.reset();
+	m_pGraphics.reset();
 	m_pWindow.reset();
 
+	IMG_Quit();
 	SDL_Quit();
 	printf("SDL subsystems have shutdown successfully\n");
 }
@@ -101,19 +109,4 @@ void SDLApp::AdvanceTimestep()
 
 	// Update ticks count (for next frame)
 	m_ticksCount = SDL_GetTicks();
-}
-
-void SDLApp::SetDrawColour(SDL_Color color) const
-{
-	m_pRenderer->SetDrawColour(color.r, color.g, color.b, color.a);
-}
-
-void SDLApp::ClearScreen() const
-{
-	m_pRenderer->Clear();
-}
-
-void SDLApp::SwapBuffers() const
-{
-	m_pRenderer->SwapBuffers();
 }
