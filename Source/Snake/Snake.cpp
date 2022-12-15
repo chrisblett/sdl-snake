@@ -46,18 +46,10 @@ static void RenderSegment(const Vector2& segmentPos, const SDLAppRenderer& rende
 	renderer.FillRect(renderer.WorldToScreen(segmentPos.x, segmentPos.y, 1, 1));
 
 	// Draw inner
-	const float innerScale = .8f;
-	Vector2 centeredPos = Math::GetCenteredPosition(segmentPos, innerScale, innerScale);
-
 	renderer.SetDrawColour(INNER_COLOUR);
+	const float innerScale = .8f;
 
-	// Move from top-left to midpoint of the cell and draw
-	renderer.FillRect(renderer.WorldToScreen(
-		centeredPos.x + .5f,
-		centeredPos.y + .5f,
-		innerScale,
-		innerScale)
-	);
+	World::DrawRectAtCell(renderer, segmentPos, .8f);
 }
 
 void Snake::Render(const SDLAppRenderer& renderer) const
@@ -71,7 +63,7 @@ void Snake::Render(const SDLAppRenderer& renderer) const
 void Snake::EatFood(int growthValue)
 {
 	m_growCounter += growthValue;
-	printf("Snake ate food, snake must grow %d times!\n", m_growCounter);
+	printf("Food consumed\n");
 }
 
 void Snake::Move(const Vector2& inputDir)

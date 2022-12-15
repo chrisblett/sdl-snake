@@ -25,6 +25,9 @@ public:
 
 	Snake* GetSnake() { return m_pSnake.get(); }
 
+	// Draws a rect around the midpoint of a cell in the world
+	static void DrawRectAtCell(const SDLAppRenderer&, const Vector2& cellPos, float rectScale);
+
 private:
 	void GenerateFood();
 

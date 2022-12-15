@@ -1,10 +1,13 @@
 #include "World.h"
 #include "../Engine/Math/Random.h"
 #include "../Engine/SDLAppRenderer.h"
+#include "../Engine/Math/Math.h"
 
 #include <memory>
 
 const int FOOD_VALUE = 5;
+
+bool g_won = false;
 
 World::World(const Vector2& snakeInputDir, int width, int height)
 	: m_cells(width, height)
@@ -32,6 +35,12 @@ World::World(const Vector2& snakeInputDir, int width, int height)
 void World::Update(const Vector2& snakeInputDir, bool fakeGrow)
 {
 	assert(m_pFoodLocation);
+
+	// Check for game over, for now just assert.
+	if (g_won)
+	{
+		assert(0 && "You win!");
+	}
 
 	// Clear all cells
 	for (int y = 0; y < m_cells.Height(); y++)
@@ -73,9 +82,35 @@ bool World::InBounds(int x, int y) const
 		(y >= 0 && y < m_worldHeight);
 }
 
+void World::DrawRectAtCell(const SDLAppRenderer& renderer, const Vector2& cellPos, float rectScale)
+{
+	// Calculate rect top-left pos relative to cell top-left
+	Vector2 centeredPos = Math::GetCenteredPosition(cellPos, rectScale, rectScale);
+
+	// Want to draw around the center of the cell so add half a unit
+	// in each axis so we are centered around it's midpoint
+	renderer.FillRect(renderer.WorldToScreen(
+		centeredPos.x + .5f,
+		centeredPos.y + .5f,
+		rectScale,
+		rectScale)
+	);
+}
+
 void World::Render(const SDLAppRenderer& renderer) const
 {
-	RenderCellInfo(renderer);
+	// Draw the world
+#define GROUND_COLOUR 159, 122, 86, 255
+	renderer.SetDrawColour(GROUND_COLOUR);
+	renderer.FillRect(renderer.WorldToScreen(0, 0, m_worldWidth, m_worldHeight));
+
+	// Draw food
+#define FOOD_COLOUR 128, 0, 0, 255
+	renderer.SetDrawColour(FOOD_COLOUR);
+	DrawRectAtCell(renderer, m_pFoodLocation->position, .55f);
+	
+	// Debug drawing
+	//RenderCellInfo(renderer);
 	RenderGrid(renderer);
 	m_pSnake->Render(renderer);
 }
@@ -155,6 +190,12 @@ void World::GenerateFood()
 		}
 	}
 	pFreeCells.shrink_to_fit();
+
+	if (pFreeCells.empty())
+	{
+		g_won = true;
+		return;
+	}
 
 	assert(!pFreeCells.empty() && "No free cells available");
 

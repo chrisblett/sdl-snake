@@ -11,7 +11,7 @@
 #include <vector>
 #include <algorithm>
 
-const int SnakeGame::CELL_SIZE = 128;
+const int SnakeGame::CELL_SIZE = 32;
 
 const Vector2 SnakeGame::NORTH = Vector2( 0, -1); // In SDL +y faces down
 const Vector2 SnakeGame::EAST  = Vector2( 1,  0);
@@ -27,7 +27,7 @@ Command MOVE_WEST  = SDL_SCANCODE_LEFT;
 const int SNAKE_SPEED   = 7;				  // How many cells it covers per second
 const float SNAKE_DELAY = 1.0f / SNAKE_SPEED; // Delay between snake updates in seconds
 
-#define ALLOW_FAKE_GROWTH 1
+#define ALLOW_FAKE_GROWTH 0
 
 bool g_fakeGrowth = false;
 #if ALLOW_FAKE_GROWTH
