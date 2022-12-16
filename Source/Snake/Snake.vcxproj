@@ -220,6 +220,7 @@ copy "$(SolutionDir)..\3rdParty\SDL\Lib\$(PlatformShortName)" "$(SolutionDir)..\
     </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="..\Engine\Graphics.cpp" />
     <ClCompile Include="..\Engine\Math\Math.cpp" />
     <ClCompile Include="..\Engine\Math\Random.cpp" />
     <ClCompile Include="..\Engine\Math\Vector2.cpp" />

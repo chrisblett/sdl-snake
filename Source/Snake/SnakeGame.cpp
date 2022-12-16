@@ -3,6 +3,7 @@
 #include "../Engine/Math/Vector2.h"
 #include "../Engine/Math/Math.h"
 #include "../Engine/Math/Random.h"
+#include "../Engine/Graphics.h"
 
 #include <SDL/SDL.h>
 #include <cmath>
@@ -48,7 +49,7 @@ bool SnakeGame::Init()
 		return false;
 
 	// Load textures
-	//GetGraphics().LoadTexture(...)
+	GetGraphics().LoadTexture("./snake_corner.png");
 
 	Random::Init();
 
