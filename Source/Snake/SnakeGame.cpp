@@ -1,4 +1,5 @@
 #include "SnakeGame.h"
+#include "SnakeBrain.h"
 #include "World.h"
 #include "../Engine/Math/Vector2.h"
 #include "../Engine/Math/Math.h"
@@ -28,16 +29,12 @@ Command MOVE_WEST  = SDL_SCANCODE_LEFT;
 const int SNAKE_SPEED   = 7;				  // How many cells it covers per second
 const float SNAKE_DELAY = 1.0f / SNAKE_SPEED; // Delay between snake updates in seconds
 
-#define ALLOW_FAKE_GROWTH 0
-
-bool g_fakeGrowth = false;
-#if ALLOW_FAKE_GROWTH
-const float GROW_DELAY = SNAKE_DELAY; // Delay between grow commands
-float g_lastGrowTime = 0.0f;
-#endif
+using std::unique_ptr;
+using std::make_unique;
 
 SnakeGame::SnakeGame()
-	: m_pInputDir(&EAST)
+	: m_pBrain(nullptr)
+	, m_pLastInputDir(nullptr)
 	, m_nextUpdateTime(0.0f)
 {
 	static_assert(CELL_SIZE > 0, "Cell size is too small");
@@ -48,22 +45,23 @@ bool SnakeGame::Init()
 	if (!InitSDL())
 		return false;
 
-	// Load textures
-	GetGraphics().LoadTexture("./snake_corner.png");
-
 	Random::Init();
 
 	SetWindowTitle("SDL Snake");
 
 	// Calculate world size according to window size
 	const auto& winSize = GetWindowSize();
-	
+
 	// Calculate the dimensions of the world given the width and height
 	// of the render region and accounting for some space
 	int worldWidth  = static_cast<int>(std::roundf(1.0f * winSize.w / CELL_SIZE)) - 1;
 	int worldHeight = static_cast<int>(std::roundf(1.0f * winSize.h / CELL_SIZE)) - 1;
 
-	m_pWorld = std::make_unique<World>(*m_pInputDir, worldWidth, worldHeight);
+	m_pWorld = make_unique<World>(worldWidth, worldHeight);
+
+	// Create snake brain
+	m_pBrain = make_unique<NormalBrain>();
+	//m_pBrain = make_unique<DebugBrain>();
 
 	Vector2 worldOriginScreenSpace = CalculateRenderOrigin(winSize.w, winSize.h, worldWidth, worldHeight);
 	GetGraphics().GetRenderer().SetWorldTransform(worldOriginScreenSpace, CELL_SIZE);
@@ -73,6 +71,7 @@ bool SnakeGame::Init()
 
 void SnakeGame::Shutdown()
 {
+	printf("Beginning game shutdown sequence\n");
 	ShutdownSDL();
 }
 
@@ -135,32 +134,30 @@ void SnakeGame::ProcessInput()
 	// See if player wants to turn snake
 	const Vector2* pInput = GetInputDirection(pState);
 
-	if (pInput && ValidInputDirection(*pInput))
+	bool validInput = false;
+	if (pInput )
 	{
-		m_pInputDir = pInput;
-	}
-
-#if ALLOW_FAKE_GROWTH
-	if (pState[SDL_SCANCODE_SPACE])
-	{
-		if (g_lastGrowTime <= 0.0f)
+		validInput = ValidInputDirection(*pInput);
+		if (validInput)
 		{
-			g_lastGrowTime = GROW_DELAY;
-			g_fakeGrowth = true;
+			m_pLastInputDir = pInput;
 		}
 	}
-#endif
+
+	// Fill out input data
+	InputData input;
+	input.pLastInputDir = m_pLastInputDir;
+	input.inputDirThisFrame = validInput;
+	input.pKeyboardState = pState;
+
+	// Send new input to the brain
+	m_pBrain->SetInput(input);
 }
 
 void SnakeGame::Update()
 {
 	AdvanceTimestep();
 	float deltaTime = GetDeltaTime();
-
-	// Update timers
-#if ALLOW_FAKE_GROWTH
-	g_lastGrowTime   -= deltaTime;
-#endif
 
 	m_nextUpdateTime -= deltaTime;
 
@@ -169,8 +166,7 @@ void SnakeGame::Update()
 	{
 		m_nextUpdateTime += SNAKE_DELAY;
 
-		m_pWorld->Update(*m_pInputDir, g_fakeGrowth);
-		g_fakeGrowth = false;
+		m_pWorld->Update(*m_pBrain.get());
 	}
 }
 

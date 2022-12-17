@@ -5,6 +5,13 @@
 #include "../Engine/Math/Vector2.h"
 #include "World.h"
 
+struct InputData
+{
+	const Vector2* pLastInputDir; 
+	const Uint8* pKeyboardState; // Access to the keyboard state
+	bool inputDirThisFrame; // Did the player hit a directional key this frame?
+};
+
 class SnakeGame : public SDLApp
 {
 public:
@@ -15,6 +22,13 @@ public:
 	virtual void ProcessInput() override;
 	virtual void Update()       override;
 	virtual void Render()       override;
+	
+	// Direction vectors representing the four cardinal directions
+	// that the snake can move in
+	static const Vector2 NORTH;
+	static const Vector2 EAST;
+	static const Vector2 SOUTH;
+	static const Vector2 WEST;
 
 private:
 	// Calculate the top-left pos that the renderer will draw the world from
@@ -27,14 +41,8 @@ private:
 	// Size of an individual cell in pixels
 	static const int CELL_SIZE;
 
-	// Direction vectors representing the four cardinal directions
-	// that the snake can move in
-	static const Vector2 NORTH;
-	static const Vector2 EAST;
-	static const Vector2 SOUTH;
-	static const Vector2 WEST;
-
+	std::unique_ptr<SnakeBrain> m_pBrain;
 	std::unique_ptr<World> m_pWorld;
-	const Vector2*         m_pInputDir;
-	float                  m_nextUpdateTime; // Time until the next update
+	const Vector2* m_pLastInputDir; // Last direction that the player requested
+	float m_nextUpdateTime; // Time until the next update
 };

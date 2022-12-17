@@ -9,7 +9,7 @@ const int FOOD_VALUE = 5;
 
 bool g_won = false;
 
-World::World(const Vector2& snakeInputDir, int width, int height)
+World::World(int width, int height)
 	: m_cells(width, height)
 	, m_pFoodLocation(nullptr)
 	, m_worldWidth(width)
@@ -27,12 +27,12 @@ World::World(const Vector2& snakeInputDir, int width, int height)
 		}
 	}
 
-	m_pSnake = std::make_unique<Snake>(*this, snakeInputDir, m_worldWidth, m_worldHeight);
+	m_pSnake = std::make_unique<Snake>(*this, m_worldWidth, m_worldHeight);
 
 	GenerateFood();
 }
 
-void World::Update(const Vector2& snakeInputDir, bool fakeGrow)
+void World::Update(SnakeBrain& brain)
 {
 	assert(m_pFoodLocation);
 
@@ -53,18 +53,13 @@ void World::Update(const Vector2& snakeInputDir, bool fakeGrow)
 	// Don't lose data about the food
 	m_pFoodLocation->free = false;
 
-	//m_pSnake->Update(*this, snakeInputDir);
+	m_pSnake->Update(brain, *this);
 
 	// Has the food been eaten?
 	if (m_pSnake->GetHeadPosition() == m_pFoodLocation->position)
 	{
 		m_pSnake->EatFood(FOOD_VALUE);
 		GenerateFood();
-	}
-
-	if (fakeGrow)
-	{
-		m_pSnake->EatFood(1);
 	}
 }
 
@@ -112,7 +107,7 @@ void World::Render(const SDLAppRenderer& renderer) const
 	// Debug drawing
 	//RenderCellInfo(renderer);
 	RenderGrid(renderer);
-	//m_pSnake->Render(renderer);
+	m_pSnake->Render(renderer);
 }
 
 void World::RenderCellInfo(const SDLAppRenderer& renderer) const

@@ -5,15 +5,18 @@
 
 class SDLAppRenderer;
 class World;
+class SnakeBrain;
 
 class Snake
 {
 public:
-	Snake(World& game, const Vector2& dir, int worldWidth, int worldHeight);
+	Snake(World& world, int worldWidth, int worldHeight);
+	~Snake() { printf("Snake destroyed\n"); }
 
-	void Update(World& game, const Vector2& inputDir);
+	void Update(SnakeBrain& brain, World& world);
 	void Render(const SDLAppRenderer&) const;
 
+	void Simulate(const Vector2* pInputDir);
 	void EatFood(int growValue);
 
 	const Vector2& GetHeadPosition() const { return m_segments[0].position; }
@@ -25,9 +28,10 @@ private:
 		Vector2 position;
 	};
 
-	void Move(const Vector2& inputDir);
+	void Move(const Vector2* pInputDir);
 	void Grow();
 	void RecordOccupiedCells(World& game);
+
 	Segment& GetHead();
 
 	std::vector<Segment> m_segments;

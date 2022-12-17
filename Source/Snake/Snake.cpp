@@ -1,4 +1,6 @@
 #include "Snake.h"
+#include "SnakeBrain.h"
+#include "SnakeGame.h"
 #include "World.h"
 #include "../Engine/Math/Math.h"
 #include "../Engine/Math/Vector2.h"
@@ -7,8 +9,8 @@
 #include <cstdio>
 #include <cassert>
 
-Snake::Snake(World& world, const Vector2& dir, int worldWidth, int worldHeight)
-	: m_pDir(&dir)
+Snake::Snake(World& world, int worldWidth, int worldHeight)
+	: m_pDir(&SnakeGame::EAST)
 	, m_numSegments(1)
 	, m_growCounter(0)
 {
@@ -17,21 +19,16 @@ Snake::Snake(World& world, const Vector2& dir, int worldWidth, int worldHeight)
 
 	// Center snake in world
 	GetHead().position = Vector2(static_cast<float>(worldWidth / 2), static_cast<float>(worldHeight / 2));
-
 	printf("Snake starting pos: (%f, %f)\n", GetHead().position.x, GetHead().position.y);
 
 	RecordOccupiedCells(world);
 }
 
-void Snake::Update(World& world, const Vector2& inputDir)
+void Snake::Update(SnakeBrain& brain, World& world)
 {
-	// Does the snake need to grow?
-	if (m_growCounter > 0)
-	{
-		Grow();
-	}
-	
-	Move(inputDir);
+	// Update behaviour
+	brain.Update(this);
+
 	RecordOccupiedCells(world);
 }
 
@@ -56,8 +53,18 @@ void Snake::Render(const SDLAppRenderer& renderer) const
 {
 	for (size_t i = 0; i < m_numSegments; i++)
 	{
-		RenderSegment(m_segments[i].position, renderer);
+		RenderSegment(m_segments[i].position, renderer); 
 	}
+}
+
+void Snake::Simulate(const Vector2* pInputDir)
+{
+	// Does the snake need to grow?
+	if (m_growCounter > 0)
+	{
+		Grow();
+	}
+	Move(pInputDir);
 }
 
 void Snake::EatFood(int growthValue)
@@ -66,8 +73,10 @@ void Snake::EatFood(int growthValue)
 	printf("Food consumed\n");
 }
 
-void Snake::Move(const Vector2& inputDir)
+void Snake::Move(const Vector2* pInputDir)
 {
+	assert(m_pDir && "Snake direction has not been set!");
+
 	// Move the body first
 	for (size_t i = m_numSegments - 1; i > 0; i--)
 	{
@@ -75,10 +84,13 @@ void Snake::Move(const Vector2& inputDir)
 		m_segments[i].position = m_segments[i - 1].position;
 	}
 
-	// Move the head and update direction
+	// Update snake direction if an input direction was sent this frame
+	if (pInputDir)
+	{
+		m_pDir = pInputDir;
+	}
 	Segment& head = GetHead();
-	head.position += inputDir;
-	m_pDir = &inputDir;
+	head.position += *m_pDir;
 
 	printf("Moving snake, head pos is (%f, %f)\n", head.position.x, head.position.y);
 }

@@ -6,14 +6,15 @@
 #include <memory>
 
 class SDLAppRenderer;
+class SnakeBrain;
 
 class World
 {
 public:
-	World(const Vector2& snakeInputDir, int width, int height);
+	World(int width, int height);
 	~World() { printf("World destroyed\n"); }
 
-	void Update(const Vector2& snakeInputDir, bool fakeGrow);
+	void Update(SnakeBrain& brain);
 	void OccupyCell(int x, int y);
 
 	// Returns true if the position is within the world limits
