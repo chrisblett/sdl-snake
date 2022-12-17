@@ -120,3 +120,19 @@ void SDLAppRenderer::DrawLine(const Vector2& a, const Vector2& b) const
 		static_cast<int>(b.y)
 	);
 }
+
+void SDLAppRenderer::DrawTexture(SDL_Texture* pTexture, const SDL_Rect* pDestRect, float angle) const
+{
+	assert(pTexture);
+	assert(pDestRect);
+
+	SDL_RenderCopyEx(
+		m_pRenderer,
+		pTexture,
+		nullptr,
+		pDestRect,
+		-angle, // Negate so positive rotation is counterclockwise
+		nullptr,
+		SDL_FLIP_NONE
+	);
+}

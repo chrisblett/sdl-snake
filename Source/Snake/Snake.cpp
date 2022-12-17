@@ -11,16 +11,16 @@
 #include <cstdio>
 #include <cassert>
 
-Texture* g_pSnakeCorner;
-Texture* g_pSnakeBody;
+using std::unique_ptr;
 
 Snake::Snake(World& world, int worldWidth, int worldHeight)
 	: m_pDir(&SnakeGame::EAST)
 	, m_numSegments(1)
 	, m_growCounter(0)
 {
-	g_pSnakeCorner = Graphics::GetTexture(Assets::SNAKE_CORNER_TEXTURE_PATH);
-	g_pSnakeBody   = Graphics::GetTexture(Assets::SNAKE_BODY_TEXTURE_PATH);
+	// Create snake sprites
+	m_pCorner = unique_ptr<Sprite>(Graphics::CreateSprite(Assets::SNAKE_CORNER_TEXTURE_PATH));
+	assert(m_pCorner);
 
 	// Allocate segments
 	m_segments.resize(worldWidth * worldHeight);

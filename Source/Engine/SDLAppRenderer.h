@@ -46,6 +46,8 @@ public:
 	void DrawLine(int x1, int y1, int x2, int y2) const;
 	void DrawLine(const Vector2& a, const Vector2& b) const;
 
+	void DrawTexture(SDL_Texture* pTexture, const SDL_Rect* pDestRect, float angle) const;
+
 private:
 	SDL_Renderer* m_pRenderer;
 	Vector2       m_worldOriginScreenSpace;

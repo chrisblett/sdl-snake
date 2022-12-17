@@ -1,6 +1,8 @@
 #pragma once
 
 #include "../Engine/Math/Vector2.h"
+#include "../Engine/Graphics.h"
+
 #include <vector>
 
 class SDLAppRenderer;
@@ -37,6 +39,8 @@ private:
 	std::vector<Segment> m_segments;
 	size_t               m_numSegments;
 	const Vector2*       m_pDir;
+
+	std::unique_ptr<Sprite> m_pCorner;
 
 	int m_growCounter; // Remaining number of times the snake must grow
 };

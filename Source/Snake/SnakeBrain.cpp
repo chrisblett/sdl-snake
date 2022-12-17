@@ -18,7 +18,7 @@ void DebugBrain::Update(Snake* pSnake)
 	}
 
 	// Only move if player hit a movement key this frame
-	if (m_inputData.inputDirThisFrame)
+	if (m_inputData.dirInputThisFrame)
 	{
 		assert(m_inputData.pLastInputDir && "Move key was recorded but the associated input is NULL!");
 		pSnake->Simulate(m_inputData.pLastInputDir);

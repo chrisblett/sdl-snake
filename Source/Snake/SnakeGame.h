@@ -15,7 +15,7 @@ struct InputData
 {
 	const Vector2* pLastInputDir; 
 	const Uint8* pKeyboardState; // Access to the keyboard state
-	bool inputDirThisFrame; // Did the player hit a directional key this frame?
+	bool dirInputThisFrame; // Stores whether the player hit a valid directional key this frame
 };
 
 class SnakeGame : public SDLApp

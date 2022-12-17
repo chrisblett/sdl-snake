@@ -4,20 +4,9 @@
 #include <memory>
 #include <string>
 #include <unordered_map>
-#include <cassert>
 
+class Sprite;
 class SDLAppRenderer;
-
-class Texture
-{
-public:
-	Texture(SDL_Texture* pTexture);
-	~Texture();
-private:
-	SDL_Texture* m_pTexture;
-	int m_width;
-	int m_height;
-};
 
 class Graphics
 {
@@ -26,15 +15,34 @@ public:
 	~Graphics();
 
 	void LoadTexture(const std::string& filename);
-	static Texture* GetTexture(const std::string& filename);
+	
+	// Creates a sprite from a texture
+	static Sprite* CreateSprite(const std::string& texturePath);
+
+	// Retrieve a loaded texture by name
+	static SDL_Texture* GetTexture(const std::string& filename);
 
 	SDLAppRenderer& GetRenderer() { return *m_pRenderer.get(); }
 
 private:
-	typedef std::unordered_map<std::string, Texture*> TexturesMap;
+	typedef std::unordered_map<std::string, SDL_Texture*> TexturesMap;
 
 	static TexturesMap s_textures;
 
 	std::unique_ptr<SDLAppRenderer> m_pRenderer;
 	SDL_Renderer* m_pSDLRenderer;
+};
+
+class Sprite
+{
+public:
+	Sprite(SDL_Texture* pTexture) : m_pTexture(pTexture) {}
+
+	// Draw a sprite on the screen with a specified transform and rotation
+	void Draw(const SDLAppRenderer& renderer, const SDL_Rect& destRect, float rotation);
+
+	SDL_Texture* GetTexture() { return m_pTexture; }
+
+private:
+	SDL_Texture* m_pTexture;
 };

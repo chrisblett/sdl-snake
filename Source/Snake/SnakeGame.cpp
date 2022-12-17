@@ -138,7 +138,7 @@ void SnakeGame::ProcessInput()
 	const Vector2* pInput = GetInputDirection(pState);
 
 	bool validInput = false;
-	if (pInput )
+	if (pInput)
 	{
 		validInput = ValidInputDirection(*pInput);
 		if (validInput)
@@ -149,9 +149,9 @@ void SnakeGame::ProcessInput()
 
 	// Fill out input data
 	InputData input;
-	input.pLastInputDir = m_pLastInputDir;
-	input.inputDirThisFrame = validInput;
-	input.pKeyboardState = pState;
+	input.pLastInputDir     = m_pLastInputDir;
+	input.dirInputThisFrame = validInput;
+	input.pKeyboardState    = pState;
 
 	// Send new input to the brain
 	m_pBrain->SetInput(input);

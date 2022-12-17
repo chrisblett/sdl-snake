@@ -3,26 +3,13 @@
 
 #include <SDL/SDL.h>
 #include <SDL/SDL_image.h>
-#include <memory>
-#include <cstdio>
 #include <unordered_map>
 #include <string>
+#include <memory>
+#include <cstdio>
 #include <cassert>
 
 Graphics::TexturesMap Graphics::s_textures;
-
-Texture::Texture(SDL_Texture* pTexture)
-	: m_pTexture(pTexture)
-{
-	assert(pTexture);
-
-	SDL_QueryTexture(pTexture, NULL, NULL, &m_width, &m_height);
-}
-
-Texture::~Texture()
-{
-	SDL_DestroyTexture(m_pTexture);
-}
 
 Graphics::Graphics(SDL_Renderer* pRenderer)
 	: m_pSDLRenderer(pRenderer)
@@ -38,7 +25,7 @@ Graphics::~Graphics()
 	auto it = s_textures.begin();
 	while (it != s_textures.end())
 	{
-		delete it->second;
+		SDL_DestroyTexture(it->second);
 		it++;
 	}
 	s_textures.clear();
@@ -51,7 +38,7 @@ void Graphics::LoadTexture(const std::string& filename)
 	SDL_Texture* pTexture = IMG_LoadTexture(m_pSDLRenderer, filename.c_str());
 	if (pTexture)
 	{
-		s_textures[filename] = new Texture(pTexture);
+		s_textures[filename] = pTexture;
 	}
 	else
 	{
@@ -59,9 +46,9 @@ void Graphics::LoadTexture(const std::string& filename)
 	}
 }
 
-Texture* Graphics::GetTexture(const std::string& filename)
+SDL_Texture* Graphics::GetTexture(const std::string& filename)
 {
-	Texture* pTexture = nullptr;
+	SDL_Texture* pTexture = nullptr;
 
 	auto it = s_textures.find(filename);
 
@@ -72,4 +59,22 @@ Texture* Graphics::GetTexture(const std::string& filename)
 	}
 
 	return pTexture;
+}
+
+Sprite* Graphics::CreateSprite(const std::string& texturePath)
+{
+	SDL_Texture* pTexture = Graphics::GetTexture(texturePath);
+	if (pTexture)
+	{
+		return new Sprite(pTexture);
+	}
+
+	printf("Could not create sprite from texture\n");
+
+	return nullptr;
+}
+
+void Sprite::Draw(const SDLAppRenderer& renderer, const SDL_Rect& destRect, float angle)
+{
+	renderer.DrawTexture(m_pTexture, &destRect, angle);
 }
