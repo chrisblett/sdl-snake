@@ -45,6 +45,9 @@ bool SnakeGame::Init()
 	if (!InitSDL())
 		return false;
 
+	GetGraphics().LoadTexture(Assets::SNAKE_CORNER_TEXTURE_PATH);
+	GetGraphics().LoadTexture(Assets::SNAKE_BODY_TEXTURE_PATH);
+
 	Random::Init();
 
 	SetWindowTitle("SDL Snake");

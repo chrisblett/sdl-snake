@@ -5,6 +5,12 @@
 #include "../Engine/Math/Vector2.h"
 #include "World.h"
 
+namespace Assets
+{
+	static const char* SNAKE_CORNER_TEXTURE_PATH = "../../Assets/snake_corner.png";
+	static const char* SNAKE_BODY_TEXTURE_PATH   = "../../Assets/snake_body.png";
+};
+
 struct InputData
 {
 	const Vector2* pLastInputDir; 

@@ -83,7 +83,7 @@ void World::DrawRectAtCell(const SDLAppRenderer& renderer, const Vector2& cellPo
 	Vector2 centeredPos = Math::GetCenteredPosition(cellPos, rectScale, rectScale);
 
 	// Want to draw around the center of the cell so add half a unit
-	// in each axis so we are centered around it's midpoint
+	// in each axis so we are centered around its midpoint
 	renderer.FillRect(renderer.WorldToScreen(
 		centeredPos.x + .5f,
 		centeredPos.y + .5f,
@@ -197,7 +197,7 @@ void World::GenerateFood()
 	// Select a random free cell 
 	size_t index = Random::GetInt(0, pFreeCells.size() - 1);
 
-	// 'Place' the food at that cell
+	// Place food at chosen cell
 	m_pFoodLocation = pFreeCells[index];
 	m_pFoodLocation->free = false;
 }

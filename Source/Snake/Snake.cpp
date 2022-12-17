@@ -5,15 +5,23 @@
 #include "../Engine/Math/Math.h"
 #include "../Engine/Math/Vector2.h"
 #include "../Engine/SDLAppRenderer.h"
+#include "../Engine/Graphics.h"
 
+#include <SDL/SDL.h>
 #include <cstdio>
 #include <cassert>
+
+Texture* g_pSnakeCorner;
+Texture* g_pSnakeBody;
 
 Snake::Snake(World& world, int worldWidth, int worldHeight)
 	: m_pDir(&SnakeGame::EAST)
 	, m_numSegments(1)
 	, m_growCounter(0)
 {
+	g_pSnakeCorner = Graphics::GetTexture(Assets::SNAKE_CORNER_TEXTURE_PATH);
+	g_pSnakeBody   = Graphics::GetTexture(Assets::SNAKE_BODY_TEXTURE_PATH);
+
 	// Allocate segments
 	m_segments.resize(worldWidth * worldHeight);
 
