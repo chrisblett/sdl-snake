@@ -13,6 +13,9 @@
 
 using std::unique_ptr;
 
+// Calculates the angle to rotate the corner graphic for a corner segment
+static float CalculateCornerSpriteRotation(const Vector2& fromParent, const Vector2& fromChild);
+
 Snake::Snake(World& world, int worldWidth, int worldHeight)
 	: m_pDir(&SnakeGame::EAST)
 	, m_numSegments(1)
@@ -21,6 +24,9 @@ Snake::Snake(World& world, int worldWidth, int worldHeight)
 	// Create snake sprites
 	m_pCorner = unique_ptr<Sprite>(Graphics::CreateSprite(Assets::SNAKE_CORNER_TEXTURE_PATH));
 	assert(m_pCorner);
+
+	m_pBody = unique_ptr<Sprite>(Graphics::CreateSprite(Assets::SNAKE_BODY_TEXTURE_PATH));
+	assert(m_pBody);
 
 	// Allocate segments
 	m_segments.resize(worldWidth * worldHeight);
@@ -61,8 +67,107 @@ void Snake::Render(const SDLAppRenderer& renderer) const
 {
 	for (size_t i = 0; i < m_numSegments; i++)
 	{
-		RenderSegment(m_segments[i].position, renderer); 
+		::RenderSegment(m_segments[i].position, renderer);
 	}
+
+	// Experimental code
+
+	for (size_t i = 1; i < m_numSegments; i++)
+	{
+		// If it is not the first segment
+		bool hasParent = i != 0;
+
+		// If it is not the last segment
+		bool hasChild = i != m_numSegments - 1;
+
+		const Segment* pParent = hasParent ? &m_segments[i - 1] : nullptr;
+		const Segment* pChild  = hasChild  ? &m_segments[i + 1] : nullptr;
+
+		RenderSegment(renderer, m_segments[i], pParent, pChild);
+	}
+}
+
+void Snake::RenderSegment(const SDLAppRenderer& renderer, const Segment& seg,
+	const Segment* pParent, const Segment* pChild) const
+{
+	// Create dest rect
+	auto destRect = renderer.WorldToScreen(seg.position.x, seg.position.y, 1, 1);
+	Sprite* pSprite = nullptr;
+
+	// Segment is the head
+	if (!pParent)
+	{
+		return;
+	}
+
+	// Segment is the tail
+	if (!pChild)
+	{
+		return;
+	}
+
+	// Determine whether the segment is a regular body or corner
+
+	// Calculate vectors from both parent and child segments towards this segment
+	Vector2 fromParent = seg.position - pParent->position;
+	Vector2 fromChild  = seg.position - pChild->position;
+	{
+		// Flip vector to get the direction this segment is moving in
+		Vector2 toParent = fromParent * -1.0f;
+
+		// Segment graphic is straight if both vectors are the same
+		if (fromChild == toParent)
+		{
+			pSprite = m_pBody.get();
+
+			// Convert vector to angle
+			float rotRadians = atan2f(toParent.y, toParent.x);
+
+			pSprite->Draw(renderer, destRect, Math::ToDegrees(rotRadians));
+
+			return;
+		}
+	}
+	
+	// Segment is a corner
+	pSprite = m_pCorner.get();
+
+	float angle = CalculateCornerSpriteRotation(fromParent, fromChild);
+
+	pSprite->Draw(renderer, destRect, angle);
+}
+
+float CalculateCornerSpriteRotation(const Vector2& fromParent, const Vector2& fromChild)
+{
+	// The corner graphic can be thought of as a quadrant of a square (or circle depending on it's smoothness).
+	// By rotating the graphic through each quadrant of the unit-circle, all four potential orientations can be drawn.
+	// This code assumes that the corner graphic with no rotation applied lies in Quadrant I.
+	if ((fromParent == SnakeGame::NORTH) && (fromChild == SnakeGame::EAST) 
+		|| (fromParent == SnakeGame::EAST) && (fromChild == SnakeGame::NORTH))
+	{
+		return 0.f;
+	}
+
+	if ((fromParent == SnakeGame::WEST)  && (fromChild == SnakeGame::NORTH) 
+		|| (fromParent == SnakeGame::NORTH) && (fromChild == SnakeGame::WEST))
+	{
+		return 90.f;
+	}
+
+	if ((fromParent == SnakeGame::SOUTH) && (fromChild == SnakeGame::WEST) 
+		|| (fromParent == SnakeGame::WEST) && (fromChild == SnakeGame::SOUTH))
+	{
+		return 180.f;
+	}
+
+	if ((fromParent == SnakeGame::EAST)  && (fromChild == SnakeGame::SOUTH) 
+		|| (fromParent == SnakeGame::SOUTH) && (fromChild == SnakeGame::EAST))
+	{
+		return 270.f;
+	}
+
+	// The segment shouldn't be drawn as a corner.
+	assert(0);
 }
 
 void Snake::Simulate(const Vector2* pInputDir)

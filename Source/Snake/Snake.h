@@ -17,7 +17,7 @@ public:
 
 	void Update(SnakeBrain& brain, World& world);
 	void Render(const SDLAppRenderer&) const;
-
+	
 	void Simulate(const Vector2* pInputDir);
 	void EatFood(int growValue);
 
@@ -32,7 +32,12 @@ private:
 
 	void Move(const Vector2* pInputDir);
 	void Grow();
+
+	// Marks any cells the snake is over as being occupied
 	void RecordOccupiedCells(World& game);
+
+	void RenderSegment(const SDLAppRenderer& renderer, const Segment& seg,
+		const Segment* pParent, const Segment* pChild) const;
 
 	Segment& GetHead();
 
@@ -41,6 +46,7 @@ private:
 	const Vector2*       m_pDir;
 
 	std::unique_ptr<Sprite> m_pCorner;
+	std::unique_ptr<Sprite> m_pBody;
 
 	int m_growCounter; // Remaining number of times the snake must grow
 };
