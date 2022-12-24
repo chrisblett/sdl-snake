@@ -74,7 +74,13 @@ Sprite* Graphics::CreateSprite(const std::string& texturePath)
 	return nullptr;
 }
 
-void Sprite::Draw(const SDLAppRenderer& renderer, const SDL_Rect& destRect, float angle)
+void Graphics::LoadSprite(UniqueSpritePtr& pSprite, const std::string& texturePath)
+{
+	pSprite = UniqueSpritePtr(CreateSprite(texturePath));
+	assert(pSprite != nullptr);
+}
+
+void Sprite::Draw(const SDLAppRenderer& renderer, const SDL_Rect& destRect, float angle) const
 {
 	renderer.DrawTexture(m_pTexture, &destRect, angle);
 }

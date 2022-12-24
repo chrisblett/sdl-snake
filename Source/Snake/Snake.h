@@ -4,6 +4,7 @@
 #include "../Engine/Graphics.h"
 
 #include <vector>
+#include <memory>
 
 class SDLAppRenderer;
 class World;
@@ -45,6 +46,9 @@ private:
 	size_t               m_numSegments;
 	const Vector2*       m_pDir;
 
+	// Graphics
+	std::unique_ptr<Sprite> m_pHead;
+	std::unique_ptr<Sprite> m_pTail;
 	std::unique_ptr<Sprite> m_pCorner;
 	std::unique_ptr<Sprite> m_pBody;
 

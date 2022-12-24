@@ -1,7 +1,9 @@
 #include "World.h"
+#include "SnakeGame.h"
+#include "../Engine/Graphics.h"
+#include "../Engine/Math/Math.h"
 #include "../Engine/Math/Random.h"
 #include "../Engine/SDLAppRenderer.h"
-#include "../Engine/Math/Math.h"
 
 #include <memory>
 
@@ -15,6 +17,9 @@ World::World(int width, int height)
 	, m_worldWidth(width)
 	, m_worldHeight(height)
 {
+	// Load graphics
+	Graphics::LoadSprite(m_pFood, Assets::SNAKE_FOOD_TEXTURE_PATH);
+
 	// Create cells
 	for (int y = 0; y < m_cells.Height(); y++)
 	{
@@ -97,13 +102,17 @@ void World::Render(const SDLAppRenderer& renderer) const
 	// Draw the world
 #define GROUND_COLOUR 159, 122, 86, 255
 	renderer.SetDrawColour(GROUND_COLOUR);
-	renderer.FillRect(renderer.WorldToScreen(0, 0, m_worldWidth, m_worldHeight));
+	renderer.FillRect(renderer.WorldToScreen(0, 0, (float)m_worldWidth, (float)m_worldHeight));
 
 	// Draw food
+/*
 #define FOOD_COLOUR 128, 0, 0, 255
 	renderer.SetDrawColour(FOOD_COLOUR);
 	DrawRectAtCell(renderer, m_pFoodLocation->position, .55f);
-	
+*/
+	//SDL_Rect destRectFood{ m_pFoodLocation->position.x, m_pFoodLocation->position.y, }
+	m_pFood->Draw(renderer, renderer.WorldToScreen(m_pFoodLocation->position.x, m_pFoodLocation->position.y, 1, 1), 0.0f);
+
 	// Debug drawing
 	//RenderCellInfo(renderer);
 	RenderGrid(renderer);

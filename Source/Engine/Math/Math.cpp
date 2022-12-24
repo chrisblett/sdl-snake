@@ -16,6 +16,6 @@ namespace Math
 
 	float ToDegrees(float angleRadians)
 	{
-		return angleRadians * 180.0f / M_PI;
+		return angleRadians * 180.0f / static_cast<float>(M_PI);
 	}
 }

@@ -7,6 +7,7 @@
 
 class SDLAppRenderer;
 class SnakeBrain;
+class Sprite;
 
 class World
 {
@@ -39,6 +40,7 @@ private:
 	};
 
 	std::unique_ptr<Snake> m_pSnake;
+	std::unique_ptr<Sprite> m_pFood;
 	Array2D<Cell>          m_cells;
 	Cell*                  m_pFoodLocation; // Cell that is holding the food
 	int                    m_worldWidth;
