@@ -20,12 +20,6 @@ Snake::Snake(World& world, int worldWidth, int worldHeight)
 	, m_numSegments(1)
 	, m_growCounter(0)
 {
-	// Load snake graphics
-	Graphics::LoadSprite(m_pCorner, Assets::SNAKE_CORNER_TEXTURE_PATH);
-	Graphics::LoadSprite(m_pHead, Assets::SNAKE_HEAD_TEXTURE_PATH);
-	Graphics::LoadSprite(m_pBody, Assets::SNAKE_BODY_TEXTURE_PATH);
-	Graphics::LoadSprite(m_pTail, Assets::SNAKE_TAIL_TEXTURE_PATH);
-
 	// Allocate segments
 	m_segments.resize(worldWidth * worldHeight);
 
@@ -63,30 +57,10 @@ static void RenderSegment(const Vector2& segmentPos, const SDLAppRenderer& rende
 
 void Snake::Render(const SDLAppRenderer& renderer) const
 {
-	/*
-	for (size_t i = 0; i < m_numSegments; i++)
-	{
-		::RenderSegment(m_segments[i].position, renderer);
-	}
-	*/
-
-	// Experimental code
-
-	for (size_t i = 0; i < m_numSegments; i++)
-	{
-		// If it is not the first segment
-		bool hasParent = i != 0;
-
-		// If it is not the last segment
-		bool hasChild = i != m_numSegments - 1;
-
-		const Segment* pParent = hasParent ? &m_segments[i - 1] : nullptr;
-		const Segment* pChild  = hasChild  ? &m_segments[i + 1] : nullptr;
-
-		RenderSegment(renderer, m_segments[i], pParent, pChild);
-	}
+	m_graphics.Render(renderer, *this);
 }
 
+/*
 void Snake::RenderSegment(const SDLAppRenderer& renderer, const Segment& seg,
 	const Segment* pParent, const Segment* pChild) const
 {
@@ -97,52 +71,6 @@ void Snake::RenderSegment(const SDLAppRenderer& renderer, const Segment& seg,
 
 	float angle = 0.0f;
 	bool isCorner = false;
-
-	/*
-	// Segment is the head
-	if (!pParent)
-	{
-		Vector2 dir = GetDirection();
-
-		pSprite = m_pHead.get();
-
-		// Convert vector to angle
-		angle = Math::ToDegrees(atan2f(-dir.y, dir.x)); // Flip the y to work with trig coordinate system
-	}
-	else if (!pChild) // Segment is the tail
-	{
-		Vector2 toParent = pParent->position - seg.position;
-		pSprite = m_pTail.get();
-
-		// Convert vector to angle
-		angle = Math::ToDegrees(atan2f(-toParent.y, toParent.x));
-	}
-	else // Not the head or tail so must be either a body or corner
-	{
-		// Both body segments and corners must have a parent and child
-		assert(pParent && pChild);
-
-		// Calculate vectors from both parent and child segments towards this segment
-		Vector2 fromParent = seg.position - pParent->position;
-		Vector2 fromChild  = seg.position - pChild->position;
-		
-		// Flip vector to get the direction this segment is moving in
-		Vector2 toParent = fromParent * -1.0f;
-
-		// Segment is straight if both vectors are the same
-		if (fromChild == toParent)
-		{
-			// Convert vector to angle
-			angle = Math::ToDegrees(atan2f(-toParent.y, toParent.x));
-		}
-		else // Must be corner
-		{
-			// Change to corner graphic
-			pSprite = m_pCorner.get();
-			angle = CalculateCornerSpriteRotation(fromParent, fromChild);
-		}
-	}
-	*/
 
 	// Determine the type of segment (head, tail, body, corner)
 	if (!pParent)
@@ -190,6 +118,7 @@ void Snake::RenderSegment(const SDLAppRenderer& renderer, const Segment& seg,
 	auto destRect = renderer.WorldToScreen(seg.position.x, seg.position.y, 1, 1);
 	pSprite->Draw(renderer, destRect, angle);
 }
+*/
 
 float CalculateCornerSpriteRotation(const Vector2& fromParent, const Vector2& fromChild)
 {
@@ -309,9 +238,96 @@ void Snake::RecordOccupiedCells(World& world)
 	}
 }
 
-Snake::Segment& Snake::GetHead()
+Segment& Snake::GetHead()
 {
 	assert(m_numSegments > 0 && m_segments.size() > 0);
 
 	return m_segments[0];
+}
+
+SnakeGraphics::SnakeGraphics()
+{
+	// Load all snake sprites
+	Graphics::LoadSprite(m_pCorner, Assets::SNAKE_CORNER_TEXTURE_PATH);
+	Graphics::LoadSprite(m_pHead, Assets::SNAKE_HEAD_TEXTURE_PATH);
+	Graphics::LoadSprite(m_pBody, Assets::SNAKE_BODY_TEXTURE_PATH);
+	Graphics::LoadSprite(m_pTail, Assets::SNAKE_TAIL_TEXTURE_PATH);
+}
+
+void SnakeGraphics::Render(const SDLAppRenderer& renderer, const Snake& snake) const
+{
+	const size_t numSegments = snake.GetNumSegments();
+	const auto& segments = snake.GetSegments();
+
+	for (size_t i = 0; i < numSegments; i++)
+	{
+		// If it is not the first segment
+		bool hasParent = i != 0;
+
+		// If it is not the last segment
+		bool hasChild = i != numSegments - 1;
+
+		const Segment* pParent = hasParent ? &segments[i - 1] : nullptr;
+		const Segment* pChild  = hasChild  ? &segments[i + 1] : nullptr;
+
+		RenderSegment(renderer, snake, segments[i], pParent, pChild);
+	}
+}
+
+void SnakeGraphics::RenderSegment(const SDLAppRenderer& renderer, const Snake& snake, const Segment& seg,
+	const Segment* pParent, const Segment* pChild) const
+{
+	const Sprite* pSprite = nullptr;
+
+	// Vector to rotate the sprite towards
+	Vector2 rotateTo;
+
+	float angle = 0.0f;
+	bool isCorner = false;
+
+	// Determine the type of segment (head, tail, body, corner)
+	if (!pParent)
+	{
+		pSprite = m_pHead.get();
+		rotateTo = snake.GetDirection();
+	}
+	else
+	{
+		// Any segment that is not the head has a parent
+		assert(pParent);
+
+		Vector2 toParent = pParent->position - seg.position;
+		rotateTo = toParent;
+
+		if (!pChild)
+		{
+			pSprite = m_pTail.get();
+		}
+		else // Not the head or tail, so must be either a body or corner
+		{
+			Vector2 fromChild  = seg.position - pChild->position;
+
+			// Straight segment
+			if (fromChild == toParent)
+			{
+				pSprite = m_pBody.get();
+			}
+			else
+			{
+				isCorner = true;
+				pSprite = m_pCorner.get();
+				angle = CalculateCornerSpriteRotation(-1.0f * toParent, fromChild);
+			}
+		}
+	}
+
+	// Calculate sprite rotation for non-corner segments
+	if (!isCorner)
+	{
+		angle = Math::ToDegrees(atan2f(-rotateTo.y, rotateTo.x)); // Flip the y-coord to work with trig coord system
+	}
+
+	// Create the destination rect for the sprite on the screen
+	auto destRect = renderer.WorldToScreen(seg.position.x, seg.position.y, 1, 1);
+	pSprite->Draw(renderer, destRect, angle);
 }

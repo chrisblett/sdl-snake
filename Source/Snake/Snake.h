@@ -6,9 +6,30 @@
 #include <vector>
 #include <memory>
 
-class SDLAppRenderer;
+class Snake;
 class World;
 class SnakeBrain;
+class SDLAppRenderer;
+
+struct Segment
+{
+	Vector2 position;
+};
+
+class SnakeGraphics
+{
+public:
+	SnakeGraphics();
+
+	void Render(const SDLAppRenderer& renderer, const Snake& snake) const;
+	void RenderSegment(const SDLAppRenderer& renderer, const Snake& snake,
+		const Segment& seg, const Segment* pParent, const Segment* pChild) const;
+private:
+	UniqueSpritePtr m_pHead;
+	UniqueSpritePtr m_pTail;
+	UniqueSpritePtr m_pCorner;
+	UniqueSpritePtr m_pBody;
+};
 
 class Snake
 {
@@ -22,35 +43,25 @@ public:
 	void Simulate(const Vector2* pInputDir);
 	void EatFood(int growValue);
 
-	const Vector2& GetHeadPosition() const { return m_segments[0].position; }
-	const Vector2& GetDirection() const { return *m_pDir; }
+	const Vector2& GetHeadPosition()          const { return m_segments[0].position; }
+	const Vector2& GetDirection()             const { return *m_pDir; }
+	const std::vector<Segment>& GetSegments() const { return m_segments; }
+	size_t GetNumSegments()                   const { return m_numSegments; }
 
 private:
-	struct Segment
-	{
-		Vector2 position;
-	};
-
 	void Move(const Vector2* pInputDir);
 	void Grow();
 
 	// Marks any cells the snake is over as being occupied
 	void RecordOccupiedCells(World& game);
 
-	void RenderSegment(const SDLAppRenderer& renderer, const Segment& seg,
-		const Segment* pParent, const Segment* pChild) const;
-
 	Segment& GetHead();
 
+	SnakeGraphics        m_graphics;
 	std::vector<Segment> m_segments;
 	size_t               m_numSegments;
 	const Vector2*       m_pDir;
 
-	// Graphics
-	std::unique_ptr<Sprite> m_pHead;
-	std::unique_ptr<Sprite> m_pTail;
-	std::unique_ptr<Sprite> m_pCorner;
-	std::unique_ptr<Sprite> m_pBody;
-
 	int m_growCounter; // Remaining number of times the snake must grow
 };
+
