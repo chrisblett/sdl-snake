@@ -105,12 +105,6 @@ void World::Render(const SDLAppRenderer& renderer) const
 	renderer.FillRect(renderer.WorldToScreen(0, 0, (float)m_worldWidth, (float)m_worldHeight));
 
 	// Draw food
-/*
-#define FOOD_COLOUR 128, 0, 0, 255
-	renderer.SetDrawColour(FOOD_COLOUR);
-	DrawRectAtCell(renderer, m_pFoodLocation->position, .55f);
-*/
-	//SDL_Rect destRectFood{ m_pFoodLocation->position.x, m_pFoodLocation->position.y, }
 	m_pFood->Draw(renderer, renderer.WorldToScreen(m_pFoodLocation->position.x, m_pFoodLocation->position.y, 1, 1), 0.0f);
 
 	// Debug drawing
