@@ -15,11 +15,11 @@
 
 namespace Assets
 {
-	const char* SNAKE_HEAD_TEXTURE_PATH   = "../../Assets/snake_head.png";
-	const char* SNAKE_TAIL_TEXTURE_PATH   = "../../Assets/snake_tail.png";
-	const char* SNAKE_CORNER_TEXTURE_PATH = "../../Assets/snake_corner.png";
-	const char* SNAKE_BODY_TEXTURE_PATH   = "../../Assets/Dev/DEBUG_snake_body.png";
-	const char* SNAKE_FOOD_TEXTURE_PATH   = "../../Assets/snake_food.png";
+	const char* SNAKE_HEAD_TEXTURE_PATH = "../../Assets/snake_head.png";
+	const char* SNAKE_TAIL_TEXTURE_PATH = "../../Assets/snake_tail.png";
+	const char* SNAKE_TURN_TEXTURE_PATH = "../../Assets/snake_turn.png";
+	const char* SNAKE_BODY_TEXTURE_PATH = "../../Assets/snake_body.png";
+	const char* SNAKE_FOOD_TEXTURE_PATH = "../../Assets/snake_food.png";
 }
 
 const int SnakeGame::CELL_SIZE = 32;
@@ -54,7 +54,7 @@ bool SnakeGame::Init()
 	if (!InitSDL())
 		return false;
 
-	GetGraphics().LoadTexture(Assets::SNAKE_CORNER_TEXTURE_PATH);
+	GetGraphics().LoadTexture(Assets::SNAKE_TURN_TEXTURE_PATH);
 	GetGraphics().LoadTexture(Assets::SNAKE_BODY_TEXTURE_PATH);
 	GetGraphics().LoadTexture(Assets::SNAKE_HEAD_TEXTURE_PATH);
 	GetGraphics().LoadTexture(Assets::SNAKE_FOOD_TEXTURE_PATH);

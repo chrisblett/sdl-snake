@@ -9,7 +9,7 @@ namespace Assets
 {
 	extern const char* SNAKE_HEAD_TEXTURE_PATH;
 	extern const char* SNAKE_TAIL_TEXTURE_PATH;
-	extern const char* SNAKE_CORNER_TEXTURE_PATH;
+	extern const char* SNAKE_TURN_TEXTURE_PATH;
 	extern const char* SNAKE_BODY_TEXTURE_PATH;
 	extern const char* SNAKE_FOOD_TEXTURE_PATH;
 }

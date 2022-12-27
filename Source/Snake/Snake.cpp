@@ -15,11 +15,11 @@
 #define HEAD_INDEX 0
 #define NECK_INDEX 1
 
-// Calculates the angle to rotate the corner graphic for a corner segment
-static float CalculateCornerSpriteRotation(const Vector2& fromParent, const Vector2& fromChild);
-
 // Returns the angle (in degrees) between a world-space vector and the world +x axis
-float WorldVecToAngle(const Vector2& v);
+static float WorldVecToAngle(const Vector2& v);
+
+// Calculates the angle to rotate the graphic for a turn segment
+static float CalculateTurnSpriteRotation(const Vector2& fromParent, const Vector2& fromChild);
 
 Snake::Snake(World& world, int worldWidth, int worldHeight)
 	: m_graphics(worldWidth * worldHeight)
@@ -75,6 +75,7 @@ void Snake::Simulate(const Vector2* pInputDir)
 		WorldVecToAngle(m_segments[tailIndex - 1].position - m_segments[tailIndex].position), // Get direction to parent segment
 		tailIndex);
 
+	// Determine whether the snake changed direction this frame
 	bool turnMade = (pPrevSnakeDir != nullptr) && (pPrevSnakeDir != m_pDir);
 	if (turnMade)
 	{
@@ -142,8 +143,7 @@ void Snake::Grow()
 		segmentDir = parentPos - lastSegmentPos;
 	}
 	// Position the new segment behind where the last segment is facing
-	m_segments[m_numSegments].position = lastSegmentPos + (-1.0f * segmentDir);
-	m_numSegments++;
+	m_segments[m_numSegments++].position = lastSegmentPos + (-1.0f * segmentDir);
 
 	m_growCounter--;
 	if (m_growCounter == 0)
@@ -175,7 +175,7 @@ SnakeGraphics::SnakeGraphics(int maxSegments)
 	m_segmentGraphics.resize(maxSegments);
 
 	// Load all snake sprites
-	Graphics::LoadSprite(m_pCorner, Assets::SNAKE_CORNER_TEXTURE_PATH);
+	Graphics::LoadSprite(m_pTurn, Assets::SNAKE_TURN_TEXTURE_PATH);
 	Graphics::LoadSprite(m_pHead, Assets::SNAKE_HEAD_TEXTURE_PATH);
 	Graphics::LoadSprite(m_pBody, Assets::SNAKE_BODY_TEXTURE_PATH);
 	Graphics::LoadSprite(m_pTail, Assets::SNAKE_TAIL_TEXTURE_PATH);
@@ -188,7 +188,7 @@ Sprite* SnakeGraphics::GetSprite(SegmentType type) const
 		case SEGMENT_HEAD: return m_pHead.get();
 		case SEGMENT_TAIL: return m_pTail.get();
 		case SEGMENT_BODY: return m_pBody.get();
-		case SEGMENT_TURN: return m_pCorner.get();
+		case SEGMENT_TURN: return m_pTurn.get();
 
 		default:
 			assert(0); // Should never get here!
@@ -204,7 +204,7 @@ void SnakeGraphics::SetSegmentGraphic(SegmentType type, float angle, int index)
 void SnakeGraphics::SetTurnGraphic(const Vector2& fromParent, const Vector2& fromChild)
 {
 	// Calculate correct orientation and set
-	SetSegmentGraphic(SEGMENT_TURN, CalculateCornerSpriteRotation(fromParent, fromChild), NECK_INDEX);
+	SetSegmentGraphic(SEGMENT_TURN, CalculateTurnSpriteRotation(fromParent, fromChild), NECK_INDEX);
 }
 
 void SnakeGraphics::Update(int numSegments)
@@ -239,11 +239,11 @@ float WorldVecToAngle(const Vector2& v)
 	return Math::ToDegrees(atan2f(-v.y, v.x));
 }
 
-float CalculateCornerSpriteRotation(const Vector2& fromParent, const Vector2& fromChild)
+float CalculateTurnSpriteRotation(const Vector2& fromParent, const Vector2& fromChild)
 {
-	// The corner graphic image can be thought of as a single quadrant of a square (or circle depending on it's smoothness).
+	// The turn sprite can be thought of as a single quadrant of a square (or circle depending on it's smoothness).
 	// By rotating this one graphic through each quadrant of the unit-circle, all four potential orientations can be drawn.
-	// This code assumes that the corner graphic with no rotation appears to lie in Quadrant I (top-right corner).
+	// This code assumes that the turn texture with no rotation appears to lie in Quadrant I (top-right corner).
 	if ((fromParent == SnakeGame::NORTH) && (fromChild == SnakeGame::EAST)
 		|| (fromParent == SnakeGame::EAST) && (fromChild == SnakeGame::NORTH))
 	{
@@ -268,7 +268,7 @@ float CalculateCornerSpriteRotation(const Vector2& fromParent, const Vector2& fr
 		return 270.f;
 	}
 
-	// The segment shouldn't be drawn as a corner.
+	// The segment shouldn't be drawn as a turn.
 	assert(0);
 	return 0.0f;
 }

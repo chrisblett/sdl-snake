@@ -30,29 +30,25 @@ public:
 	SnakeGraphics(int maxSegments);
 
 	void Render(const SDLAppRenderer& renderer, const Snake& snake) const;
-	
-	/*
-	void RenderSegment(const SDLAppRenderer& renderer, const Snake& snake,
-		const Segment& seg, const Segment* pParent, const Segment* pChild) const;
-	*/
-
+	// Sets a particular segment's graphic data
 	void SetSegmentGraphic(SegmentType type, float angle, int index);
 	void SetTurnGraphic(const Vector2& fromParent, const Vector2& fromChild);
 
 	void Update(int numSegments);
 
+private:
 	Sprite* GetSprite(SegmentType type) const;
 
-private:
 	struct SegmentGraphic
 	{
 		SegmentType type;
 		float angle;
 	};
+
 	std::vector<SegmentGraphic> m_segmentGraphics;
 	UniqueSpritePtr m_pHead;
 	UniqueSpritePtr m_pTail;
-	UniqueSpritePtr m_pCorner;
+	UniqueSpritePtr m_pTurn;
 	UniqueSpritePtr m_pBody;
 };
 
