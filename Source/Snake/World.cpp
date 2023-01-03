@@ -9,13 +9,12 @@
 
 const int FOOD_VALUE = 5;
 
-bool g_won = false;
-
 World::World(int width, int height)
 	: m_cells(width, height)
 	, m_pFoodLocation(nullptr)
 	, m_worldWidth(width)
 	, m_worldHeight(height)
+	, m_noFoodLeft(false)
 {
 	// Load graphics
 	Graphics::LoadSprite(m_pFood, Assets::SNAKE_FOOD_TEXTURE_PATH);
@@ -33,18 +32,18 @@ World::World(int width, int height)
 	}
 
 	m_pSnake = std::make_unique<Snake>(*this, m_worldWidth, m_worldHeight);
-
+	
 	GenerateFood();
 }
 
-void World::Update(SnakeBrain& brain)
+SnakeStatus World::Update(SnakeBrain& brain)
 {
 	assert(m_pFoodLocation);
 
-	// Check for game over, for now just assert.
-	if (g_won)
+	// Check if the player has eaten all food
+	if (m_noFoodLeft)
 	{
-		assert(0 && "You win!");
+		return STATUS_DONE;
 	}
 
 	// Clear all cells
@@ -58,7 +57,12 @@ void World::Update(SnakeBrain& brain)
 	// Don't lose data about the food
 	m_pFoodLocation->free = false;
 
-	m_pSnake->Update(brain, *this);
+	m_pSnake->Update(brain);
+
+	if (m_pSnake->IsDead())
+	{
+		return STATUS_DEAD;
+	}
 
 	// Has the food been eaten?
 	if (m_pSnake->GetHeadPosition() == m_pFoodLocation->position)
@@ -66,12 +70,13 @@ void World::Update(SnakeBrain& brain)
 		m_pSnake->EatFood(FOOD_VALUE);
 		GenerateFood();
 	}
+
+	return STATUS_ACTIVE;
 }
 
 void World::OccupyCell(int x, int y)
 {
-	//TODO: Should change this to an assert in the final game
-	if (!InBounds(x, y)) return;
+	if (!InBounds(x, y)) assert(0);
 
 	m_cells.Get(x, y).free = false;
 }
@@ -189,9 +194,10 @@ void World::GenerateFood()
 	}
 	pFreeCells.shrink_to_fit();
 
+	// No more food can be generated
 	if (pFreeCells.empty())
 	{
-		g_won = true;
+		m_noFoodLeft = true;
 		return;
 	}
 

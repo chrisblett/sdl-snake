@@ -23,9 +23,11 @@ static float CalculateTurnSpriteRotation(const Vector2& fromParent, const Vector
 
 Snake::Snake(World& world, int worldWidth, int worldHeight)
 	: m_graphics(worldWidth * worldHeight)
+	, m_world(world)
 	, m_pDir(&SnakeGame::EAST)
 	, m_numSegments(1)
 	, m_growCounter(0)
+	, m_dead(false)
 {
 	// Allocate segments
 	m_segments.resize(worldWidth * worldHeight);
@@ -39,15 +41,18 @@ Snake::Snake(World& world, int worldWidth, int worldHeight)
 	Grow();
 	Grow();
 
-	RecordOccupiedCells(world);
+	MarkOccupiedCells();
 }
 
-void Snake::Update(SnakeBrain& brain, World& world)
+void Snake::Update(SnakeBrain& brain)
 {
 	// Update behaviour
 	brain.Update(this);
 
-	RecordOccupiedCells(world);
+	if (!m_dead)
+	{
+		MarkOccupiedCells();
+	}
 }
 
 void Snake::Render(const SDLAppRenderer& renderer) const
@@ -66,6 +71,14 @@ void Snake::Simulate(const Vector2* pInputDir)
 	const Vector2* pPrevSnakeDir = 0;
 	Move(pInputDir, pPrevSnakeDir);
 
+	// Check if snake hit world boundary
+	const Vector2& headPos = GetHead().position;
+	if (!m_world.InBounds(static_cast<int>(headPos.x), static_cast<int>(headPos.y)))
+	{
+		m_dead = true;
+	}
+
+	// TODO: Refactor
 	// Update snake graphics
 	m_graphics.SetSegmentGraphic(SEGMENT_HEAD, WorldVecToAngle(GetDirection()), HEAD_INDEX); // Head
 	m_graphics.Update(m_numSegments); // Body
@@ -152,11 +165,11 @@ void Snake::Grow()
 	}
 }
 
-void Snake::RecordOccupiedCells(World& world)
+void Snake::MarkOccupiedCells()
 {
 	for (size_t i = 0; i < m_numSegments; i++)
 	{
-		world.OccupyCell(
+		m_world.OccupyCell(
 			static_cast<int>(m_segments[i].position.x),
 			static_cast<int>(m_segments[i].position.y)
 		);

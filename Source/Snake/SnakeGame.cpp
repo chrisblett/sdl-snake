@@ -13,6 +13,9 @@
 #include <vector>
 #include <algorithm>
 
+#define NORMAL_CELL_SIZE 32
+#define DEBUG_CELL_SIZE 96
+
 namespace Assets
 {
 	const char* SNAKE_HEAD_TEXTURE_PATH = "../../Assets/snake_head.png";
@@ -22,7 +25,7 @@ namespace Assets
 	const char* SNAKE_FOOD_TEXTURE_PATH = "../../Assets/snake_food.png";
 }
 
-const int SnakeGame::CELL_SIZE = 32;
+const int SnakeGame::CELL_SIZE = NORMAL_CELL_SIZE;
 
 const Vector2 SnakeGame::NORTH = Vector2( 0, -1); // In SDL +y faces down
 const Vector2 SnakeGame::EAST  = Vector2( 1,  0);
@@ -45,6 +48,7 @@ SnakeGame::SnakeGame()
 	: m_pBrain(nullptr)
 	, m_pLastInputDir(nullptr)
 	, m_nextUpdateTime(0.0f)
+	, m_gameEnding(false)
 {
 	static_assert(CELL_SIZE > 0, "Cell size is too small");
 }
@@ -181,12 +185,26 @@ void SnakeGame::Update()
 	{
 		m_nextUpdateTime += SNAKE_DELAY;
 
-		m_pWorld->Update(*m_pBrain.get());
+		SnakeStatus status = m_pWorld->Update(*m_pBrain.get());
+
+		if (status == STATUS_DEAD)
+		{
+			printf("You lost! Ending game\n");
+			DoGameOver();
+		}
+
+		if (status == STATUS_DONE)
+		{
+			assert(0 && "You won!");
+		}
 	}
 }
 
 void SnakeGame::Render()
 {
+	// Don't render the game if game over was triggered
+	if(m_gameEnding) return;
+
 	auto& renderer = GetGraphics().GetRenderer();
 
 	renderer.SetDrawColour(0, 0, 0, 255);
@@ -195,6 +213,15 @@ void SnakeGame::Render()
 	m_pWorld->Render(renderer);
 
 	renderer.SwapBuffers();
+}
+
+void SnakeGame::DoGameOver()
+{
+	m_gameEnding = true;
+
+	// ...
+
+	Terminate();
 }
 
 Vector2 SnakeGame::CalculateRenderOrigin(int renderAreaW, int renderAreaH,

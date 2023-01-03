@@ -2,6 +2,7 @@
 
 #include "../Engine/Array2D.h"
 #include "Snake.h"
+#include "SnakeGame.h"
 
 #include <memory>
 
@@ -15,7 +16,8 @@ public:
 	World(int width, int height);
 	~World() { printf("World destroyed\n"); }
 
-	void Update(SnakeBrain& brain);
+	SnakeStatus Update(SnakeBrain& brain);
+
 	void OccupyCell(int x, int y);
 
 	// Returns true if the position is within the world limits
@@ -39,10 +41,12 @@ private:
 		bool free; // Not occupied by the snake or food
 	};
 
-	std::unique_ptr<Snake> m_pSnake;
+	std::unique_ptr<Snake>  m_pSnake;
 	std::unique_ptr<Sprite> m_pFood;
-	Array2D<Cell>          m_cells;
-	Cell*                  m_pFoodLocation; // Cell that is holding the food
-	int                    m_worldWidth;
-	int                    m_worldHeight;
+	Array2D<Cell>           m_cells;
+	Cell*                   m_pFoodLocation; // Cell that is holding the food
+
+	int  m_worldWidth;
+	int  m_worldHeight;
+	bool m_noFoodLeft;
 };

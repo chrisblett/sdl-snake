@@ -3,7 +3,6 @@
 #include "../Engine/SDLApp.h"
 #include "../Engine/Array2D.h"
 #include "../Engine/Math/Vector2.h"
-#include "World.h"
 
 namespace Assets
 {
@@ -20,6 +19,16 @@ struct InputData
 	const Uint8* pKeyboardState; // Access to the keyboard state
 	bool dirInputThisFrame; // Stores whether the player hit a valid directional key this frame
 };
+
+enum SnakeStatus
+{
+	STATUS_ACTIVE, // There is food to be eaten (Still playing)
+	STATUS_DONE, // All food eaten, (Player won!)
+	STATUS_DEAD, 
+};
+
+class World;
+class SnakeBrain;
 
 class SnakeGame : public SDLApp
 {
@@ -40,6 +49,9 @@ public:
 	static const Vector2 WEST;
 
 private:
+	// Begin game over sequence
+	void DoGameOver();
+
 	// Calculate the top-left pos that the renderer will draw the world from
 	Vector2 CalculateRenderOrigin(int renderAreaW, int renderAreaH,
 		int worldWidth, int worldHeight) const;
@@ -54,4 +66,5 @@ private:
 	std::unique_ptr<World> m_pWorld;
 	const Vector2* m_pLastInputDir; // Last direction that the player requested
 	float m_nextUpdateTime; // Time until the next update
+	bool m_gameEnding; // Whether the game is ending this frame
 };
