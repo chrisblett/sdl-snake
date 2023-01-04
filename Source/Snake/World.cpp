@@ -59,18 +59,18 @@ SnakeStatus World::Update(SnakeBrain& brain)
 
 	m_pSnake->Update(brain);
 
+	// See if snake died this update
 	if (m_pSnake->IsDead())
 	{
 		return STATUS_DEAD;
 	}
-
-	// Has the food been eaten?
+	
+	// Snake is still active, run normal logic
 	if (m_pSnake->GetHeadPosition() == m_pFoodLocation->position)
 	{
 		m_pSnake->EatFood(FOOD_VALUE);
 		GenerateFood();
 	}
-
 	return STATUS_ACTIVE;
 }
 
@@ -81,10 +81,24 @@ void World::OccupyCell(int x, int y)
 	m_cells.Get(x, y).free = false;
 }
 
+const Cell& World::GetCell(int x, int y) const
+{
+	assert(InBounds(x, y));
+
+	return m_cells.Get(x, y);
+}
+
 bool World::InBounds(int x, int y) const
 {
 	return (x >= 0 && x < m_worldWidth) &&
 		(y >= 0 && y < m_worldHeight);
+}
+
+bool World::IsFree(int x, int y) const
+{
+	assert(InBounds(x, y));
+
+	return m_cells.Get(x, y).free;
 }
 
 void World::DrawRectAtCell(const SDLAppRenderer& renderer, const Vector2& cellPos, float rectScale)
@@ -193,6 +207,9 @@ void World::GenerateFood()
 		}
 	}
 	pFreeCells.shrink_to_fit();
+
+	// If this fails, there's a good chance we forgot to mark the snake's occupied cells or it is out-of-date.
+	assert( pFreeCells.size() == (m_cells.Size() - m_pSnake->GetLength()) );
 
 	// No more food can be generated
 	if (pFreeCells.empty())

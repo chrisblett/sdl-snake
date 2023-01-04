@@ -6,6 +6,12 @@
 
 #include <memory>
 
+struct Cell
+{
+	Vector2 position;
+	bool free; // Not occupied by the snake or food
+};
+
 class SDLAppRenderer;
 class SnakeBrain;
 class Sprite;
@@ -19,9 +25,13 @@ public:
 	SnakeStatus Update(SnakeBrain& brain);
 
 	void OccupyCell(int x, int y);
+	const Cell& GetCell(int x, int y) const;
 
 	// Returns true if the position is within the world limits
 	bool InBounds(int x, int y) const;
+
+	// Returns true if the cell located at position (x, y) is free
+	bool IsFree(int x, int y) const;
 
 	void Render(const SDLAppRenderer&) const;
 	void RenderGrid(const SDLAppRenderer& renderer) const;
@@ -34,12 +44,6 @@ public:
 
 private:
 	void GenerateFood();
-
-	struct Cell
-	{
-		Vector2 position;
-		bool free; // Not occupied by the snake or food
-	};
 
 	std::unique_ptr<Snake>  m_pSnake;
 	std::unique_ptr<Sprite> m_pFood;

@@ -68,7 +68,7 @@ public:
 	const Vector2& GetHeadPosition()          const { return m_segments[0].position; }
 	const Vector2& GetDirection()             const { return *m_pDir; }
 	const std::vector<Segment>& GetSegments() const { return m_segments; }
-	size_t GetNumSegments()                   const { return m_numSegments; }
+	size_t GetLength()                        const { return m_numSegments; }
 
 	bool IsDead() const { return m_dead; }
 
@@ -78,6 +78,9 @@ private:
 
 	// Marks any cells the snake is over as being occupied
 	void MarkOccupiedCells();
+
+	// Tests conditions for snake death. If a condition was triggered, m_dead is set to true. 
+	void CheckForDeath();
 
 	Segment& GetHead();
 

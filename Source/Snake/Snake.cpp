@@ -48,11 +48,6 @@ void Snake::Update(SnakeBrain& brain)
 {
 	// Update behaviour
 	brain.Update(this);
-
-	if (!m_dead)
-	{
-		MarkOccupiedCells();
-	}
 }
 
 void Snake::Render(const SDLAppRenderer& renderer) const
@@ -71,12 +66,9 @@ void Snake::Simulate(const Vector2* pInputDir)
 	const Vector2* pPrevSnakeDir = 0;
 	Move(pInputDir, pPrevSnakeDir);
 
-	// Check if snake hit world boundary
-	const Vector2& headPos = GetHead().position;
-	if (!m_world.InBounds(static_cast<int>(headPos.x), static_cast<int>(headPos.y)))
-	{
-		m_dead = true;
-	}
+	// Exit early if snake died this frame.
+	CheckForDeath();
+	if(m_dead) return;
 
 	// TODO: Refactor
 	// Update snake graphics
@@ -176,6 +168,43 @@ void Snake::MarkOccupiedCells()
 	}
 }
 
+void Snake::CheckForDeath()
+{
+	// The two conditions that trigger a game over:
+	// 1. Snake head touched world bounds
+	// 2. Snake head collided with body
+	
+	const int headX = static_cast<int>(GetHead().position.x);
+	const int headY = static_cast<int>(GetHead().position.y);
+
+	// Collision with world boundary
+	if (!m_world.InBounds(headX, headY))
+	{
+		m_dead = true;
+		return;
+	}
+
+	// Test self-collision
+	m_world.OccupyCell(headX, headY);
+
+	// Iterate through each segment after the head, checking if the head shares the same cell
+	for (size_t i = 1; i < m_numSegments; i++)
+	{
+		int segX = static_cast<int>(m_segments[i].position.x);
+		int segY = static_cast<int>(m_segments[i].position.y);
+
+		// Head is already here!
+		if (!m_world.IsFree(segX, segY))
+		{
+			m_dead = true;
+			return;
+		}
+
+		// NOTE: May as well set each cell-empty flag here instead of a separate call to MarkOccupiedCells() later...
+		m_world.OccupyCell(segX, segY);
+	}
+}
+
 Segment& Snake::GetHead()
 {
 	assert(m_numSegments > 0 && m_segments.size() > 0);
@@ -235,7 +264,7 @@ void SnakeGraphics::Update(int numSegments)
 
 void SnakeGraphics::Render(const SDLAppRenderer& renderer, const Snake& snake) const
 {
-	const size_t numSegments = snake.GetNumSegments();
+	const size_t numSegments = snake.GetLength();
 	const auto& segments = snake.GetSegments();
 
 	for (size_t i = 0; i < numSegments; i++)

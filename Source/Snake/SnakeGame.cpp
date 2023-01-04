@@ -187,15 +187,16 @@ void SnakeGame::Update()
 
 		SnakeStatus status = m_pWorld->Update(*m_pBrain.get());
 
+		// Game over
 		if (status == STATUS_DEAD)
 		{
-			printf("You lost! Ending game\n");
+			printf("You lost! Game over!\n");
 			DoGameOver();
 		}
 
 		if (status == STATUS_DONE)
 		{
-			assert(0 && "You won!");
+			assert(0 && "You won! Well done!");
 		}
 	}
 }
