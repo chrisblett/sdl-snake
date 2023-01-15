@@ -51,6 +51,7 @@ static const char* GetGameOverMessage(SnakeStatus status)
 	if (status == STATUS_DONE) return "You won! Well done!";
 
 	assert(0); // Shouldn't get here
+	return nullptr;
 }
 
 SnakeGame::SnakeGame()

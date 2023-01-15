@@ -44,6 +44,8 @@ public:
 	// Draws a rect around the midpoint of a cell in the world
 	static void DrawRectAtCell(const SDLAppRenderer&, const Vector2& cellPos, float rectScale);
 
+	static float WorldVecToAngle(const Vector2& v);
+
 private:
 	// Clears all cells in the world to empty
 	void ClearAll();

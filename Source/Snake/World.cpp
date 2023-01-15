@@ -9,6 +9,14 @@
 
 const int FOOD_VALUE = 5;
 
+// TODO: This really belongs in some sort of 'world util' file
+// Returns the angle (in degrees) between a world-space vector and the world +x axis
+float World::WorldVecToAngle(const Vector2& v)
+{
+	// Flip the y-coord to work with trig coord system
+	return Math::ToDegrees(atan2f(-v.y, v.x));
+}
+
 World::World(int width, int height)
 	: m_cells(width, height)
 	, m_pFoodLocation(nullptr)
