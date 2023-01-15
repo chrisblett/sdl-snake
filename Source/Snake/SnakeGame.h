@@ -51,6 +51,7 @@ public:
 private:
 	// Begin game over sequence
 	void DoGameOver();
+	void Restart();
 
 	// Calculate the top-left pos that the renderer will draw the world from
 	Vector2 CalculateRenderOrigin(int renderAreaW, int renderAreaH,
@@ -66,5 +67,6 @@ private:
 	std::unique_ptr<World> m_pWorld;
 	const Vector2* m_pLastInputDir; // Last direction that the player requested
 	float m_nextUpdateTime; // Time until the next update
-	bool m_gameEnding; // Whether the game is ending this frame
+	bool m_gameOver;
+	bool m_startedPlaying;
 };

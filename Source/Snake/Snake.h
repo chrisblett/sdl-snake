@@ -29,6 +29,8 @@ class SnakeGraphics
 public:
 	SnakeGraphics(int maxSegments);
 
+	void Init(const Snake& snake);
+
 	void Render(const SDLAppRenderer& renderer, const Snake& snake) const;
 
 	// Sets a particular segment's graphic data
@@ -59,6 +61,8 @@ public:
 	Snake(World& world, int worldWidth, int worldHeight);
 	~Snake() { printf("Snake destroyed\n"); }
 
+	void Reset();
+
 	void Update(SnakeBrain& brain);
 	void Render(const SDLAppRenderer&) const;
 	
@@ -73,6 +77,9 @@ public:
 	bool IsDead() const { return m_dead; }
 
 private:
+	// Sets up the snake to its starting state
+	void Init();
+
 	void Move(const Vector2* pInputDir, const Vector2*& pPrevDir);
 	void Grow();
 
@@ -86,6 +93,7 @@ private:
 
 	SnakeGraphics        m_graphics;
 	std::vector<Segment> m_segments;
+	const Vector2        m_startPos;
 	World&               m_world;
 	const Vector2*       m_pDir;
 	size_t               m_numSegments;

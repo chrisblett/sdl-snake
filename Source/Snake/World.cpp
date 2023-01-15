@@ -36,6 +36,13 @@ World::World(int width, int height)
 	GenerateFood();
 }
 
+void World::Reset()
+{
+	ClearAll();
+	m_pSnake->Reset();
+	GenerateFood();
+}
+
 SnakeStatus World::Update(SnakeBrain& brain)
 {
 	assert(m_pFoodLocation);
@@ -65,7 +72,7 @@ SnakeStatus World::Update(SnakeBrain& brain)
 		return STATUS_DEAD;
 	}
 	
-	// Snake is still active, run normal logic
+	// Check if food was eaten
 	if (m_pSnake->GetHeadPosition() == m_pFoodLocation->position)
 	{
 		m_pSnake->EatFood(FOOD_VALUE);
@@ -186,6 +193,17 @@ void World::RenderGrid(const SDLAppRenderer& renderer) const
 			renderer.WorldToScreen(start),
 			renderer.WorldToScreen(end)
 		);
+	}
+}
+
+void World::ClearAll()
+{
+	for (int y = 0; y < m_cells.Height(); y++)
+	{
+		for (int x = 0; x < m_cells.Width(); x++)
+		{
+			m_cells.Get(x, y).free = true;
+		}
 	}
 }
 

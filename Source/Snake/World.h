@@ -22,6 +22,8 @@ public:
 	World(int width, int height);
 	~World() { printf("World destroyed\n"); }
 
+	void Reset();
+
 	SnakeStatus Update(SnakeBrain& brain);
 
 	void OccupyCell(int x, int y);
@@ -43,6 +45,8 @@ public:
 	static void DrawRectAtCell(const SDLAppRenderer&, const Vector2& cellPos, float rectScale);
 
 private:
+	// Clears all cells in the world to empty
+	void ClearAll();
 	void GenerateFood();
 
 	std::unique_ptr<Snake>  m_pSnake;

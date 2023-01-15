@@ -24,24 +24,38 @@ static float CalculateTurnSpriteRotation(const Vector2& fromParent, const Vector
 Snake::Snake(World& world, int worldWidth, int worldHeight)
 	: m_graphics(worldWidth * worldHeight)
 	, m_world(world)
-	, m_pDir(&SnakeGame::EAST)
-	, m_numSegments(1)
-	, m_growCounter(0)
-	, m_dead(false)
+	, m_startPos(Vector2(static_cast<float>(worldWidth / 2), static_cast<float>(worldHeight / 2)))
 {
 	// Allocate segments
 	m_segments.resize(worldWidth * worldHeight);
 
-	// Center snake in world
-	GetHead().position = Vector2(static_cast<float>(worldWidth / 2), static_cast<float>(worldHeight / 2));
-	printf("Snake starting pos: (%f, %f)\n", GetHead().position.x, GetHead().position.y);
+	// Set start position (centers the snake in the world)
+	printf("Snake starting pos set to: (%f, %f)\n", m_startPos.x, m_startPos.y);
 
-	// Snake starts with 3 segments (head, body, and tail)
+	Init();
+}
+
+void Snake::Init()
+{
+	m_dead = false;
+	m_numSegments = 1;
+	m_growCounter = 0;
+
+	m_pDir = &SnakeGame::EAST;
+	GetHead().position = m_startPos;
+
 	EatFood(2);
 	Grow();
 	Grow();
 
 	MarkOccupiedCells();
+
+	m_graphics.Init(*this);
+}
+
+void Snake::Reset()
+{
+	Init();
 }
 
 void Snake::Update(SnakeBrain& brain)
@@ -221,6 +235,14 @@ SnakeGraphics::SnakeGraphics(int maxSegments)
 	Graphics::LoadSprite(m_pHead, Assets::SNAKE_HEAD_TEXTURE_PATH);
 	Graphics::LoadSprite(m_pBody, Assets::SNAKE_BODY_TEXTURE_PATH);
 	Graphics::LoadSprite(m_pTail, Assets::SNAKE_TAIL_TEXTURE_PATH);
+}
+
+void SnakeGraphics::Init(const Snake& snake)
+{
+	SetSegmentGraphic(SEGMENT_HEAD, WorldVecToAngle(snake.GetDirection()), HEAD_INDEX);
+	SetSegmentGraphic(SEGMENT_BODY, m_segmentGraphics[HEAD_INDEX].angle, NECK_INDEX);
+	SetSegmentGraphic(SEGMENT_TAIL,
+		WorldVecToAngle(snake.GetDirection()), 2);
 }
 
 Sprite* SnakeGraphics::GetSprite(SegmentType type) const

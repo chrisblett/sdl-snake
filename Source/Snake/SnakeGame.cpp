@@ -12,6 +12,7 @@
 #include <memory>
 #include <vector>
 #include <algorithm>
+#include <iostream>
 
 #define NORMAL_CELL_SIZE 32
 #define DEBUG_CELL_SIZE 96
@@ -38,17 +39,26 @@ Command MOVE_EAST  = SDL_SCANCODE_RIGHT;
 Command MOVE_SOUTH = SDL_SCANCODE_DOWN;
 Command MOVE_WEST  = SDL_SCANCODE_LEFT;
 
-const int SNAKE_SPEED   = 7;				  // How many cells it covers per second
+const int SNAKE_SPEED = 5;				  // How many cells it covers per second
 const float SNAKE_DELAY = 1.0f / SNAKE_SPEED; // Delay between snake updates in seconds
 
 using std::unique_ptr;
 using std::make_unique;
 
+static const char* GetGameOverMessage(SnakeStatus status)
+{
+	if (status == STATUS_DEAD) return "You lost! Game Over";
+	if (status == STATUS_DONE) return "You won! Well done!";
+
+	assert(0); // Shouldn't get here
+}
+
 SnakeGame::SnakeGame()
 	: m_pBrain(nullptr)
 	, m_pLastInputDir(nullptr)
 	, m_nextUpdateTime(0.0f)
-	, m_gameEnding(false)
+	, m_gameOver(false)
+	, m_startedPlaying(false)
 {
 	static_assert(CELL_SIZE > 0, "Cell size is too small");
 }
@@ -84,6 +94,8 @@ bool SnakeGame::Init()
 
 	Vector2 worldOriginScreenSpace = CalculateRenderOrigin(winSize.w, winSize.h, worldWidth, worldHeight);
 	GetGraphics().GetRenderer().SetWorldTransform(worldOriginScreenSpace, CELL_SIZE);
+
+	printf("Press 'SPACE' to begin!\n");
 
 	return true;
 }
@@ -150,6 +162,21 @@ void SnakeGame::ProcessInput()
 		Terminate();
 	}
 
+	if (!m_startedPlaying)
+	{
+		if (!pState[SDL_SCANCODE_SPACE]) return;
+
+		m_startedPlaying = true;
+	}
+
+	if (m_gameOver)
+	{
+		// Get out if they didn't request to restart
+		if (!pState[SDL_SCANCODE_R]) return;
+
+		Restart();
+	}
+
 	// See if player wants to turn snake
 	const Vector2* pInput = GetInputDirection(pState);
 
@@ -175,6 +202,8 @@ void SnakeGame::ProcessInput()
 
 void SnakeGame::Update()
 {
+	if(!m_startedPlaying || m_gameOver) return;
+
 	AdvanceTimestep();
 	float deltaTime = GetDeltaTime();
 
@@ -187,16 +216,10 @@ void SnakeGame::Update()
 
 		SnakeStatus status = m_pWorld->Update(*m_pBrain.get());
 
-		// Game over
-		if (status == STATUS_DEAD)
+		if (status == STATUS_DEAD || status == STATUS_DONE)
 		{
-			printf("You lost! Game over!\n");
+			printf("%s\n", GetGameOverMessage(status));
 			DoGameOver();
-		}
-
-		if (status == STATUS_DONE)
-		{
-			assert(0 && "You won! Well done!");
 		}
 	}
 }
@@ -204,8 +227,20 @@ void SnakeGame::Update()
 void SnakeGame::Render()
 {
 	// Don't render the game if game over was triggered
-	if(m_gameEnding) return;
+	if(m_gameOver) return;
 
+	// Only render the first frame when the player launches the game,
+	// but hasn't begun playing yet
+	if(!m_startedPlaying)
+	{
+		static bool firstRenderCall = true;
+
+		if (!firstRenderCall) return;
+		firstRenderCall = false;
+	}
+
+	//printf("Rendering!\n");
+	// in test-branch
 	auto& renderer = GetGraphics().GetRenderer();
 
 	renderer.SetDrawColour(0, 0, 0, 255);
@@ -218,11 +253,18 @@ void SnakeGame::Render()
 
 void SnakeGame::DoGameOver()
 {
-	m_gameEnding = true;
+	m_gameOver = true;
+	printf("Press 'R' to restart!\n");
+}
 
-	// ...
+void SnakeGame::Restart()
+{
+	m_gameOver = false;
 
-	Terminate();
+	m_pLastInputDir = nullptr;
+	m_nextUpdateTime = 0.0f;
+
+	m_pWorld->Reset();
 }
 
 Vector2 SnakeGame::CalculateRenderOrigin(int renderAreaW, int renderAreaH,
