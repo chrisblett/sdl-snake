@@ -27,15 +27,15 @@ namespace
 {
 	typedef const int Command;
 	Command MOVE_NORTH = SDL_SCANCODE_UP;
-	Command MOVE_EAST = SDL_SCANCODE_RIGHT;
+	Command MOVE_EAST  = SDL_SCANCODE_RIGHT;
 	Command MOVE_SOUTH = SDL_SCANCODE_DOWN;
-	Command MOVE_WEST = SDL_SCANCODE_LEFT;
+	Command MOVE_WEST  = SDL_SCANCODE_LEFT;
 
 	constexpr int   SNAKE_SPEED = 5;				  // How many cells it covers per second
 	constexpr float SNAKE_DELAY = 1.0f / SNAKE_SPEED; // Delay between snake updates in seconds
 
 	constexpr int NORMAL_CELL_SIZE = 32;
-	constexpr int DEBUG_CELL_SIZE = 96;
+	constexpr int DEBUG_CELL_SIZE  = 96;
 }
 
 const int SnakeGame::CELL_SIZE = NORMAL_CELL_SIZE;
