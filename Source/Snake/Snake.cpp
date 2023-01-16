@@ -16,6 +16,7 @@ Snake::Snake(World& world, int worldWidth, int worldHeight)
 	: m_graphics(worldWidth * worldHeight)
 	, m_world(world)
 	, m_startPos(Vector2(static_cast<float>(worldWidth / 2), static_cast<float>(worldHeight / 2)))
+	, m_turnMadeThisUpdate(false)
 {
 	// Allocate segments
 	m_segments.resize(worldWidth * worldHeight);
@@ -75,18 +76,20 @@ void Snake::Simulate(const Vector2* pInputDir)
 	CheckForDeath();
 	if(m_dead) return;
 
-	// Update snake graphics
-	m_graphics.Update(*this); // Body
-
-	// Determine whether the snake changed direction this frame
+	// Determine whether the snake changed direction (turned) this frame
 	bool turnMade = (pPrevSnakeDir != nullptr) && (pPrevSnakeDir != m_pDir);
+	SnakeTurnData turnData;
+
 	if (turnMade)
 	{
-		// Override neck segment graphic with a turn graphic.
-		// The dir from the parent segment (the head in this case) would be in the opposite direction to where it is going.
-		// TODO: Move this to SnakeGraphics file
-		m_graphics.SetTurnGraphic(-1.0f * GetDirection(), *pPrevSnakeDir);
+		// The dir from the parent segment (the head in this case) 
+		// would be in the opposite direction to where it is going.
+		turnData.fromParent = -1.0f * GetDirection();
+		turnData.fromChild = *pPrevSnakeDir;
 	}
+
+	// Update snake graphics
+	m_graphics.Update(*this, turnMade ? &turnData : nullptr);
 }
 
 void Snake::EatFood(int growthValue)

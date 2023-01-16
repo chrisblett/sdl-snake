@@ -57,11 +57,69 @@ SnakeGraphics::SnakeGraphics(int maxSegments)
 
 void SnakeGraphics::Init(const Snake& snake)
 {
+	printf("Setting segment graphics for the initial snake\n");
+
 	const float snakeAngleWorld = World::WorldVecToAngle(snake.GetDirection());
 
 	SetSegmentGraphic(SEGMENT_HEAD, snakeAngleWorld, HEAD_INDEX);
 	SetSegmentGraphic(SEGMENT_BODY, m_segmentGraphics[HEAD_INDEX].angle, NECK_INDEX);
-	SetSegmentGraphic(SEGMENT_TAIL, snakeAngleWorld, 2);
+	SetSegmentGraphic(SEGMENT_TAIL, snakeAngleWorld, 2); // Length of snake minus 1
+}
+
+void SnakeGraphics::Update(const Snake& snake, SnakeTurnData* pTurnData)
+{
+	SetSegmentGraphic(SEGMENT_HEAD, World::WorldVecToAngle(snake.GetDirection()), HEAD_INDEX);
+
+	// Iterate in reverse between the tail and the neck
+	for (size_t i = snake.GetLength() - 2; i > NECK_INDEX; i--)
+	{
+		// Take on the graphic of their parent segment
+		m_segmentGraphics[i] = m_segmentGraphics[i - 1];
+	}
+
+	// Snake turned this update?
+	if (pTurnData)
+	{
+		// Use turn sprite for neck segment
+		SetTurnGraphic(pTurnData->fromParent, pTurnData->fromChild);
+	}
+	else
+	{
+		// Use body sprite for the neck segment instead
+		SetSegmentGraphic(SEGMENT_BODY, m_segmentGraphics[HEAD_INDEX].angle, NECK_INDEX);
+	}
+
+	const auto& snakeSegments = snake.GetSegments();
+	int tailIndex = snake.GetLength() - 1;
+
+	SetSegmentGraphic(
+		SEGMENT_TAIL,
+		World::WorldVecToAngle(snakeSegments[tailIndex - 1].position - snakeSegments[tailIndex].position), // Get direction to parent segment
+		tailIndex);
+}
+
+void SnakeGraphics::Render(const SDLAppRenderer& renderer, const Snake& snake) const
+{
+	const auto& segments = snake.GetSegments();
+
+	for (size_t i = 0; i < snake.GetLength(); i++)
+	{
+		const Sprite* pSprite = GetSprite(m_segmentGraphics[i].type);
+		auto destRect = renderer.WorldToScreen(segments[i].position.x, segments[i].position.y, 1, 1);
+		pSprite->Draw(renderer, destRect, m_segmentGraphics[i].angle);
+	}
+}
+
+void SnakeGraphics::SetSegmentGraphic(SegmentType type, float angle, int index)
+{
+	m_segmentGraphics[index].type = type;
+	m_segmentGraphics[index].angle = angle;
+}
+
+void SnakeGraphics::SetTurnGraphic(const Vector2& fromParent, const Vector2& fromChild)
+{
+	// Calculate correct orientation and set
+	SetSegmentGraphic(SEGMENT_TURN, CalculateTurnSpriteRotation(fromParent, fromChild), NECK_INDEX);
 }
 
 Sprite* SnakeGraphics::GetSprite(SegmentType type) const
@@ -78,54 +136,6 @@ Sprite* SnakeGraphics::GetSprite(SegmentType type) const
 	}
 
 	return nullptr;
-}
-
-void SnakeGraphics::SetSegmentGraphic(SegmentType type, float angle, int index)
-{
-	m_segmentGraphics[index].type = type;
-	m_segmentGraphics[index].angle = angle;
-}
-
-void SnakeGraphics::SetTurnGraphic(const Vector2& fromParent, const Vector2& fromChild)
-{
-	// Calculate correct orientation and set
-	SetSegmentGraphic(SEGMENT_TURN, CalculateTurnSpriteRotation(fromParent, fromChild), NECK_INDEX);
-}
-
-void SnakeGraphics::Update(const Snake& snake)
-{
-	SetSegmentGraphic(SEGMENT_HEAD, World::WorldVecToAngle(snake.GetDirection()), HEAD_INDEX); // Head
-
-	// Iterate in reverse between the tail and the neck
-	for (size_t i = snake.GetLength() - 2; i > NECK_INDEX; i--)
-	{
-		// Take on the graphic of their parent segment
-		m_segmentGraphics[i] = m_segmentGraphics[i - 1];
-	}
-
-	// Manually set neck segment graphic to the body sprite by default.
-	SetSegmentGraphic(SEGMENT_BODY, m_segmentGraphics[HEAD_INDEX].angle, NECK_INDEX);
-
-	const auto& snakeSegments = snake.GetSegments();
-	int tailIndex = snake.GetLength() - 1;
-
-	SetSegmentGraphic(
-		SEGMENT_TAIL,
-		World::WorldVecToAngle(snakeSegments[tailIndex - 1].position - snakeSegments[tailIndex].position), // Get direction to parent segment
-		tailIndex);
-}
-
-void SnakeGraphics::Render(const SDLAppRenderer& renderer, const Snake& snake) const
-{
-	const size_t numSegments = snake.GetLength();
-	const auto& segments = snake.GetSegments();
-
-	for (size_t i = 0; i < numSegments; i++)
-	{
-		const Sprite* pSprite = GetSprite(m_segmentGraphics[i].type);
-		auto destRect = renderer.WorldToScreen(segments[i].position.x, segments[i].position.y, 1, 1);
-		pSprite->Draw(renderer, destRect, m_segmentGraphics[i].angle);
-	}
 }
 
 static void RenderSegment(const Vector2& segmentPos, const SDLAppRenderer& renderer)

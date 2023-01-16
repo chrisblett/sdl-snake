@@ -11,6 +11,12 @@ struct Segment
 	Vector2 position;
 };
 
+struct SnakeTurnData
+{
+	Vector2 fromParent;
+	Vector2 fromChild;
+};
+
 class SDLAppRenderer;
 class World;
 class SnakeBrain;
@@ -36,8 +42,9 @@ public:
 
 	bool IsDead() const { return m_dead; }
 
+
 private:
-	// Sets up the snake to its starting state
+	// Sets snake to its starting state
 	void Init();
 
 	void Move(const Vector2* pInputDir, const Vector2*& pPrevDir);
@@ -59,4 +66,5 @@ private:
 	size_t               m_numSegments;
 	int                  m_growCounter; // Remaining number of times the snake must grow
 	bool                 m_dead;
+	bool                 m_turnMadeThisUpdate;
 };
