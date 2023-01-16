@@ -35,13 +35,15 @@ public:
 	void Simulate(const Vector2* pInputDir);
 	void EatFood(int growValue);
 
-	const Vector2& GetHeadPosition()          const { return m_segments[0].position; }
+	const Vector2& GetHeadPosition()          const { return m_segments[HEAD_INDEX].position; }
 	const Vector2& GetDirection()             const { return *m_pDir; }
 	const std::vector<Segment>& GetSegments() const { return m_segments; }
 	size_t GetLength()                        const { return m_numSegments; }
 
 	bool IsDead() const { return m_dead; }
 
+	static constexpr size_t HEAD_INDEX = 0;
+	static constexpr size_t NECK_INDEX = 1;
 
 private:
 	// Sets snake to its starting state
@@ -64,7 +66,8 @@ private:
 	World&               m_world;
 	const Vector2*       m_pDir;
 	size_t               m_numSegments;
-	int                  m_growCounter; // Remaining number of times the snake must grow
+	// The remaining number of times the snake must grow after eating a piece of food,
+	// the snake grows once per world update.
+	int                  m_growCounter; 
 	bool                 m_dead;
-	bool                 m_turnMadeThisUpdate;
 };

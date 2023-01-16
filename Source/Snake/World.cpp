@@ -7,15 +7,7 @@
 
 #include <memory>
 
-const int FOOD_VALUE = 5;
-
-// TODO: This really belongs in some sort of 'world util' file
-// Returns the angle (in degrees) between a world-space vector and the world +x axis
-float World::WorldVecToAngle(const Vector2& v)
-{
-	// Flip the y-coord to work with trig coord system
-	return Math::ToDegrees(atan2f(-v.y, v.x));
-}
+constexpr int FOOD_VALUE = 5;
 
 World::World(int width, int height)
 	: m_cells(width, height)
@@ -116,34 +108,24 @@ bool World::IsFree(int x, int y) const
 	return m_cells.Get(x, y).free;
 }
 
-void World::DrawRectAtCell(const SDLAppRenderer& renderer, const Vector2& cellPos, float rectScale)
-{
-	// Calculate rect top-left pos relative to cell top-left
-	Vector2 centeredPos = Math::GetCenteredPosition(cellPos, rectScale, rectScale);
-
-	// Want to draw around the center of the cell so add half a unit
-	// in each axis so we are centered around its midpoint
-	renderer.FillRect(renderer.WorldToScreen(
-		centeredPos.x + .5f,
-		centeredPos.y + .5f,
-		rectScale,
-		rectScale)
-	);
-}
-
 void World::Render(const SDLAppRenderer& renderer) const
 {
 	// Draw the world
 #define GROUND_COLOUR 159, 122, 86, 255
 	renderer.SetDrawColour(GROUND_COLOUR);
-	renderer.FillRect(renderer.WorldToScreen(0, 0, (float)m_worldWidth, (float)m_worldHeight));
+
+	renderer.FillRect( 
+		renderer.WorldToScreen(0, 0, static_cast<float>(m_worldWidth), static_cast<float>(m_worldHeight)));
 
 	// Draw food
-	m_pFood->Draw(renderer, renderer.WorldToScreen(m_pFoodLocation->position.x, m_pFoodLocation->position.y, 1, 1), 0.0f);
+	m_pFood->Draw(
+		renderer, 
+		renderer.WorldToScreen(m_pFoodLocation->position.x, m_pFoodLocation->position.y, 1, 1),
+		0.0f);
 
 	// Debug drawing
 	//RenderCellInfo(renderer);
-	RenderGrid(renderer);
+	//RenderGrid(renderer);
 	m_pSnake->Render(renderer);
 }
 
@@ -244,7 +226,7 @@ void World::GenerateFood()
 		return;
 	}
 
-	assert(!pFreeCells.empty() && "No free cells available");
+	assert(!pFreeCells.empty());
 
 	// Select a random free cell 
 	size_t index = Random::GetInt(0, pFreeCells.size() - 1);

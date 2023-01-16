@@ -14,9 +14,6 @@
 #include <algorithm>
 #include <iostream>
 
-#define NORMAL_CELL_SIZE 32
-#define DEBUG_CELL_SIZE 96
-
 namespace Assets
 {
 	const char* SNAKE_HEAD_TEXTURE_PATH = "../../Assets/snake_head.png";
@@ -26,21 +23,27 @@ namespace Assets
 	const char* SNAKE_FOOD_TEXTURE_PATH = "../../Assets/snake_food.png";
 }
 
+namespace
+{
+	typedef const int Command;
+	Command MOVE_NORTH = SDL_SCANCODE_UP;
+	Command MOVE_EAST = SDL_SCANCODE_RIGHT;
+	Command MOVE_SOUTH = SDL_SCANCODE_DOWN;
+	Command MOVE_WEST = SDL_SCANCODE_LEFT;
+
+	constexpr int   SNAKE_SPEED = 5;				  // How many cells it covers per second
+	constexpr float SNAKE_DELAY = 1.0f / SNAKE_SPEED; // Delay between snake updates in seconds
+
+	constexpr int NORMAL_CELL_SIZE = 32;
+	constexpr int DEBUG_CELL_SIZE = 96;
+}
+
 const int SnakeGame::CELL_SIZE = NORMAL_CELL_SIZE;
 
 const Vector2 SnakeGame::NORTH = Vector2( 0, -1); // In SDL +y faces down
 const Vector2 SnakeGame::EAST  = Vector2( 1,  0);
 const Vector2 SnakeGame::SOUTH = Vector2( 0,  1);
 const Vector2 SnakeGame::WEST  = Vector2(-1,  0);
-
-typedef const int Command;
-Command MOVE_NORTH = SDL_SCANCODE_UP;
-Command MOVE_EAST  = SDL_SCANCODE_RIGHT;
-Command MOVE_SOUTH = SDL_SCANCODE_DOWN;
-Command MOVE_WEST  = SDL_SCANCODE_LEFT;
-
-const int SNAKE_SPEED = 5;				  // How many cells it covers per second
-const float SNAKE_DELAY = 1.0f / SNAKE_SPEED; // Delay between snake updates in seconds
 
 using std::unique_ptr;
 using std::make_unique;
@@ -241,7 +244,6 @@ void SnakeGame::Render()
 	}
 
 	//printf("Rendering!\n");
-	// in test-branch
 	auto& renderer = GetGraphics().GetRenderer();
 
 	renderer.SetDrawColour(0, 0, 0, 255);

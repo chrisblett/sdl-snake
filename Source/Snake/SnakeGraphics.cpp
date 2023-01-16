@@ -2,12 +2,7 @@
 #include "SnakeGame.h"
 #include "Snake.h"
 #include "World.h"
-
-namespace
-{
-	constexpr size_t HEAD_INDEX = 0;
-	constexpr size_t NECK_INDEX = 1;
-}
+#include "WorldUtil.h"
 
 // Calculates the angle to rotate the graphic for a turn segment
 static float CalculateTurnSpriteRotation(const Vector2& fromParent, const Vector2& fromChild)
@@ -57,21 +52,24 @@ SnakeGraphics::SnakeGraphics(int maxSegments)
 
 void SnakeGraphics::Init(const Snake& snake)
 {
+	// Should only be called after snake has been initialised
+	assert(snake.GetLength() == 3);
+
 	printf("Setting segment graphics for the initial snake\n");
 
-	const float snakeAngleWorld = World::WorldVecToAngle(snake.GetDirection());
+	const float snakeAngleWorld = WorldUtil::WorldVecToAngle(snake.GetDirection());
 
-	SetSegmentGraphic(SEGMENT_HEAD, snakeAngleWorld, HEAD_INDEX);
-	SetSegmentGraphic(SEGMENT_BODY, m_segmentGraphics[HEAD_INDEX].angle, NECK_INDEX);
-	SetSegmentGraphic(SEGMENT_TAIL, snakeAngleWorld, 2); // Length of snake minus 1
+	SetSegmentGraphic(SEGMENT_HEAD, snakeAngleWorld, Snake::HEAD_INDEX);
+	SetSegmentGraphic(SEGMENT_BODY, m_segmentGraphics[Snake::HEAD_INDEX].angle, Snake::NECK_INDEX);
+	SetSegmentGraphic(SEGMENT_TAIL, snakeAngleWorld, snake.GetLength() - 1);
 }
 
 void SnakeGraphics::Update(const Snake& snake, SnakeTurnData* pTurnData)
 {
-	SetSegmentGraphic(SEGMENT_HEAD, World::WorldVecToAngle(snake.GetDirection()), HEAD_INDEX);
+	SetSegmentGraphic(SEGMENT_HEAD, WorldUtil::WorldVecToAngle(snake.GetDirection()), Snake::HEAD_INDEX);
 
 	// Iterate in reverse between the tail and the neck
-	for (size_t i = snake.GetLength() - 2; i > NECK_INDEX; i--)
+	for (size_t i = snake.GetLength() - 2; i > Snake::NECK_INDEX; i--)
 	{
 		// Take on the graphic of their parent segment
 		m_segmentGraphics[i] = m_segmentGraphics[i - 1];
@@ -86,7 +84,7 @@ void SnakeGraphics::Update(const Snake& snake, SnakeTurnData* pTurnData)
 	else
 	{
 		// Use body sprite for the neck segment instead
-		SetSegmentGraphic(SEGMENT_BODY, m_segmentGraphics[HEAD_INDEX].angle, NECK_INDEX);
+		SetSegmentGraphic(SEGMENT_BODY, m_segmentGraphics[Snake::HEAD_INDEX].angle, Snake::NECK_INDEX);
 	}
 
 	const auto& snakeSegments = snake.GetSegments();
@@ -94,7 +92,8 @@ void SnakeGraphics::Update(const Snake& snake, SnakeTurnData* pTurnData)
 
 	SetSegmentGraphic(
 		SEGMENT_TAIL,
-		World::WorldVecToAngle(snakeSegments[tailIndex - 1].position - snakeSegments[tailIndex].position), // Get direction to parent segment
+		WorldUtil::WorldVecToAngle(
+			snakeSegments[tailIndex - 1].position - snakeSegments[tailIndex].position), // Get direction to parent segment
 		tailIndex);
 }
 
@@ -119,7 +118,7 @@ void SnakeGraphics::SetSegmentGraphic(SegmentType type, float angle, int index)
 void SnakeGraphics::SetTurnGraphic(const Vector2& fromParent, const Vector2& fromChild)
 {
 	// Calculate correct orientation and set
-	SetSegmentGraphic(SEGMENT_TURN, CalculateTurnSpriteRotation(fromParent, fromChild), NECK_INDEX);
+	SetSegmentGraphic(SEGMENT_TURN, CalculateTurnSpriteRotation(fromParent, fromChild), Snake::NECK_INDEX);
 }
 
 Sprite* SnakeGraphics::GetSprite(SegmentType type) const
@@ -152,5 +151,5 @@ static void RenderSegment(const Vector2& segmentPos, const SDLAppRenderer& rende
 	renderer.SetDrawColour(INNER_COLOUR);
 	const float innerScale = .8f;
 
-	World::DrawRectAtCell(renderer, segmentPos, .8f);
+	WorldUtil::DrawRectAtCell(renderer, segmentPos, .8f);
 }

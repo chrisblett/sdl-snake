@@ -12,17 +12,21 @@
 #include <cassert>
 #include <string>
 
+static Vector2 CalcSnakeStartPos(int worldWidth, int worldHeight)
+{
+	// Places the snake's head at the centre of the world
+	return Vector2(static_cast<float>(worldWidth / 2), static_cast<float>(worldHeight / 2));
+}
+
 Snake::Snake(World& world, int worldWidth, int worldHeight)
 	: m_graphics(worldWidth * worldHeight)
 	, m_world(world)
-	, m_startPos(Vector2(static_cast<float>(worldWidth / 2), static_cast<float>(worldHeight / 2)))
-	, m_turnMadeThisUpdate(false)
+	, m_startPos(CalcSnakeStartPos(worldWidth, worldHeight))
 {
 	// Allocate segments
 	m_segments.resize(worldWidth * worldHeight);
 
-	// Set start position (centers the snake in the world)
-	printf("Snake starting pos set to: (%f, %f)\n", m_startPos.x, m_startPos.y);
+	printf("Snake starting pos is at: (%.1f, %.1f)\n", m_startPos.x, m_startPos.y);
 
 	Init();
 }
@@ -63,7 +67,7 @@ void Snake::Render(const SDLAppRenderer& renderer) const
 
 void Snake::Simulate(const Vector2* pInputDir)
 {
-	// Does the snake need to grow?
+	// Grow the snake if needed
 	if (m_growCounter > 0)
 	{
 		Grow();
@@ -192,8 +196,8 @@ void Snake::CheckForDeath()
 	// Iterate through each segment after the head, checking if the head shares the same cell
 	for (size_t i = 1; i < m_numSegments; i++)
 	{
-		int segX = static_cast<int>(m_segments[i].position.x);
-		int segY = static_cast<int>(m_segments[i].position.y);
+		const int segX = static_cast<int>(m_segments[i].position.x);
+		const int segY = static_cast<int>(m_segments[i].position.y);
 
 		// Head is already here!
 		if (!m_world.IsFree(segX, segY))
@@ -202,7 +206,7 @@ void Snake::CheckForDeath()
 			return;
 		}
 
-		// NOTE: May as well set each cell-empty flag here instead of a separate call to MarkOccupiedCells() later...
+		// NOTE: Set each cell-empty flag here instead of a separate call to MarkOccupiedCells() later
 		m_world.OccupyCell(segX, segY);
 	}
 }
@@ -211,5 +215,5 @@ Segment& Snake::GetHead()
 {
 	assert(m_numSegments > 0 && m_segments.size() > 0);
 
-	return m_segments[0];
+	return m_segments[HEAD_INDEX];
 }
