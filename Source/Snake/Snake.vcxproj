@@ -227,6 +227,7 @@ copy "$(SolutionDir)..\3rdParty\SDL\Lib\$(PlatformShortName)" "$(SolutionDir)..\
     <ClCompile Include="..\Engine\SDLApp.cpp" />
     <ClCompile Include="..\Engine\SDLAppRenderer.cpp" />
     <ClCompile Include="..\Engine\SDLWindow.cpp" />
+    <ClCompile Include="..\Engine\Util.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Snake.cpp" />
     <ClCompile Include="SnakeBrain.cpp" />
@@ -244,6 +245,7 @@ copy "$(SolutionDir)..\3rdParty\SDL\Lib\$(PlatformShortName)" "$(SolutionDir)..\
     <ClInclude Include="..\Engine\SDLApp.h" />
     <ClInclude Include="..\Engine\SDLAppRenderer.h" />
     <ClInclude Include="..\Engine\SDLWindow.h" />
+    <ClInclude Include="..\Engine\Util.h" />
     <ClInclude Include="Snake.h" />
     <ClInclude Include="SnakeBrain.h" />
     <ClInclude Include="SnakeGame.h" />

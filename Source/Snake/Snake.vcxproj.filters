@@ -66,6 +66,9 @@
     <ClCompile Include="WorldUtil.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\Engine\Util.cpp">
+      <Filter>Engine\Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\Engine\SDLApp.h">
@@ -109,6 +112,9 @@
     </ClInclude>
     <ClInclude Include="WorldUtil.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Engine\Util.h">
+      <Filter>Engine\Header Files</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

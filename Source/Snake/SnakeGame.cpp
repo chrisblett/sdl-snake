@@ -5,6 +5,7 @@
 #include "../Engine/Math/Math.h"
 #include "../Engine/Math/Random.h"
 #include "../Engine/Graphics.h"
+#include "../Engine/Util.h"
 
 #include <SDL/SDL.h>
 #include <cmath>
@@ -47,6 +48,7 @@ const Vector2 SnakeGame::WEST  = Vector2(-1,  0);
 
 using std::unique_ptr;
 using std::make_unique;
+using Util::DebugPrint;
 
 static const char* GetGameOverMessage(SnakeStatus status)
 {
@@ -262,6 +264,7 @@ void SnakeGame::DoGameOver()
 
 void SnakeGame::Restart()
 {
+
 	m_gameOver = false;
 
 	m_pLastInputDir = nullptr;
