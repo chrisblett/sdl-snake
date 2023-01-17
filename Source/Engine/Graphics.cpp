@@ -1,5 +1,6 @@
 #include "Graphics.h"
 #include "SDLAppRenderer.h"
+#include "Util.h"
 
 #include <SDL/SDL.h>
 #include <SDL/SDL_image.h>
@@ -11,6 +12,8 @@
 
 Graphics::TexturesMap Graphics::s_textures;
 
+using Util::DebugPrint;
+
 Graphics::Graphics(SDL_Renderer* pRenderer)
 	: m_pSDLRenderer(pRenderer)
 {
@@ -20,7 +23,7 @@ Graphics::Graphics(SDL_Renderer* pRenderer)
 Graphics::~Graphics()
 {
 	// Free all textures
-	printf("Freeing all textures\n");
+	DebugPrint("Freeing all textures\n");
 
 	auto it = s_textures.begin();
 	while (it != s_textures.end())
@@ -30,7 +33,7 @@ Graphics::~Graphics()
 	}
 	s_textures.clear();
 
-	printf("Graphics destroyed\n");
+	DebugPrint("Graphics destroyed\n");
 }
 
 void Graphics::LoadTexture(const std::string& filename)
@@ -69,7 +72,7 @@ Sprite* Graphics::CreateSprite(const std::string& texturePath)
 		return new Sprite(pTexture);
 	}
 
-	printf("Could not create sprite from texture\n");
+	DebugPrint("Could not create sprite from texture\n");
 
 	return nullptr;
 }

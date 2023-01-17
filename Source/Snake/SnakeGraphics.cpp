@@ -55,8 +55,6 @@ void SnakeGraphics::Init(const Snake& snake)
 	// Should only be called after snake has been initialised
 	assert(snake.GetLength() == 3);
 
-	printf("Setting segment graphics for the initial snake\n");
-
 	const float snakeAngleWorld = WorldUtil::WorldVecToAngle(snake.GetDirection());
 
 	SetSegmentGraphic(SEGMENT_HEAD, snakeAngleWorld, Snake::HEAD_INDEX);

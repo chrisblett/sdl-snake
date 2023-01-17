@@ -25,7 +25,7 @@ class Snake
 {
 public:
 	Snake(World& world, int worldWidth, int worldHeight);
-	~Snake() { printf("Snake destroyed\n"); }
+	~Snake();
 
 	void Reset();
 

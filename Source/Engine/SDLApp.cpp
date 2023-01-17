@@ -1,6 +1,7 @@
 #include "SDLApp.h"
 #include "SDLAppRenderer.h"
 #include "SDLWindow.h"
+#include "Util.h"
 
 #include <SDL/SDL.h>
 #include <SDL/SDL_image.h>
@@ -8,6 +9,8 @@
 #include <memory>
 
 const float SDLApp::MAX_DELTA_VALUE = 0.05f;
+
+using Util::DebugPrint;
 
 SDLApp::SDLApp()
 	: m_isRunning(true)
@@ -88,7 +91,8 @@ void SDLApp::ShutdownSDL()
 
 	IMG_Quit();
 	SDL_Quit();
-	printf("SDL subsystems have shutdown successfully\n");
+
+	DebugPrint("SDL subsystems have shutdown successfully\n");
 }
 
 void SDLApp::AdvanceTimestep()

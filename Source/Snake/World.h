@@ -20,7 +20,7 @@ class World
 {
 public:
 	World(int width, int height);
-	~World() { printf("World destroyed\n"); }
+	~World();
 
 	void Reset();
 

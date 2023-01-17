@@ -1,8 +1,14 @@
 #include "SnakeBrain.h"
 #include "SnakeGame.h"
 #include "../Engine/Math/Vector2.h"
+#include "../Engine/Util.h"
 
 #include <SDL/SDL.h>
+
+SnakeBrain::~SnakeBrain()
+{
+	Util::DebugPrint("SnakeBrain destroyed!\n");
+}
 
 void NormalBrain::Update(Snake* pSnake)
 {

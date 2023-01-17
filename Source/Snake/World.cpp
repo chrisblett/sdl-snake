@@ -4,6 +4,7 @@
 #include "../Engine/Math/Math.h"
 #include "../Engine/Math/Random.h"
 #include "../Engine/SDLAppRenderer.h"
+#include "../Engine/Util.h"
 
 #include <memory>
 
@@ -34,6 +35,11 @@ World::World(int width, int height)
 	m_pSnake = std::make_unique<Snake>(*this, m_worldWidth, m_worldHeight);
 	
 	GenerateFood();
+}
+
+World::~World()
+{ 
+	Util::DebugPrint("World destroyed\n");
 }
 
 void World::Reset()
@@ -76,6 +82,9 @@ SnakeStatus World::Update(SnakeBrain& brain)
 	if (m_pSnake->GetHeadPosition() == m_pFoodLocation->position)
 	{
 		m_pSnake->EatFood(FOOD_VALUE);
+		Util::DebugPrint("Snake consumed food at (%.1f, %.1f)\n",
+			m_pFoodLocation->position.x, m_pFoodLocation->position.y);
+
 		GenerateFood();
 	}
 	return STATUS_ACTIVE;

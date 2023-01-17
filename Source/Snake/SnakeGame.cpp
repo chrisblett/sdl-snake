@@ -71,6 +71,8 @@ SnakeGame::SnakeGame()
 
 bool SnakeGame::Init()
 {
+	DBG_PRINT_SEPARATOR("START-UP");
+
 	if (!InitSDL())
 		return false;
 
@@ -108,7 +110,9 @@ bool SnakeGame::Init()
 
 void SnakeGame::Shutdown()
 {
-	printf("Beginning game shutdown sequence\n");
+	DBG_PRINT_SEPARATOR("SHUTDOWN");
+	DebugPrint("Beginning game shutdown sequence...\n");
+
 	ShutdownSDL();
 }
 
@@ -224,6 +228,7 @@ void SnakeGame::Update()
 
 		if (status == STATUS_DEAD || status == STATUS_DONE)
 		{
+			DebugPrint("Snake died!\n");
 			printf("%s\n", GetGameOverMessage(status));
 			DoGameOver();
 		}
@@ -264,7 +269,7 @@ void SnakeGame::DoGameOver()
 
 void SnakeGame::Restart()
 {
-
+	DebugPrint("Restarting game...\n");
 	m_gameOver = false;
 
 	m_pLastInputDir = nullptr;

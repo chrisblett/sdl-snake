@@ -1,4 +1,5 @@
 #include "SDLWindow.h"
+#include "Util.h"
 
 #include <cassert>
 #include <cstdio>
@@ -18,7 +19,7 @@ SDLWindow::~SDLWindow()
 	SDL_DestroyWindow(m_pWindow);
 	m_pWindow = nullptr;
 
-	printf("SDLWindow has been successfully destroyed\n");
+	Util::DebugPrint("SDLWindow has been successfully destroyed\n");
 }
 
 void SDLWindow::SetTitle(const char* pTitle)

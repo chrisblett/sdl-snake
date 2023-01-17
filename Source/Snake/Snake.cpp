@@ -6,11 +6,14 @@
 #include "../Engine/Math/Vector2.h"
 #include "../Engine/SDLAppRenderer.h"
 #include "../Engine/Graphics.h"
+#include "../Engine/Util.h"
 
 #include <SDL/SDL.h>
 #include <cstdio>
 #include <cassert>
 #include <string>
+
+using Util::DebugPrint;
 
 static Vector2 CalcSnakeStartPos(int worldWidth, int worldHeight)
 {
@@ -26,9 +29,14 @@ Snake::Snake(World& world, int worldWidth, int worldHeight)
 	// Allocate segments
 	m_segments.resize(worldWidth * worldHeight);
 
-	printf("Snake starting pos is at: (%.1f, %.1f)\n", m_startPos.x, m_startPos.y);
+	DebugPrint("Snake starting pos is at: (%.1f, %.1f)\n", m_startPos.x, m_startPos.y);
 
 	Init();
+}
+
+Snake::~Snake()
+{ 
+	DebugPrint("Snake destroyed\n");
 }
 
 void Snake::Init()
@@ -43,7 +51,7 @@ void Snake::Init()
 	EatFood(2);
 	Grow();
 	Grow();
-
+	
 	MarkOccupiedCells();
 
 	m_graphics.Init(*this);
@@ -99,7 +107,6 @@ void Snake::Simulate(const Vector2* pInputDir)
 void Snake::EatFood(int growthValue)
 {
 	m_growCounter += growthValue;
-	printf("Food consumed\n");
 }
 
 void Snake::Move(const Vector2* pInputDir, const Vector2*& pPrevDir)
@@ -118,15 +125,12 @@ void Snake::Move(const Vector2* pInputDir, const Vector2*& pPrevDir)
 	{
 		if (pInputDir != m_pDir)
 		{
-			//printf("Snake changed dir!\n");
 			pPrevDir = m_pDir;
 		}
 		m_pDir = pInputDir;
 	}
 	Segment& head = GetHead();
 	head.position += *m_pDir;
-
-	//printf("Moving snake, head pos is (%f, %f)\n", head.position.x, head.position.y);
 }
 
 void Snake::Grow()
@@ -159,7 +163,7 @@ void Snake::Grow()
 	m_growCounter--;
 	if (m_growCounter == 0)
 	{
-		printf("Snake length is now: %d\n", m_numSegments);
+		printf("Length: %d\n", m_numSegments);
 	}
 }
 

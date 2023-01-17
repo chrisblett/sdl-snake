@@ -14,10 +14,7 @@ public:
 	{
 	}
 
-	virtual ~SnakeBrain() 
-	{ 
-		printf("SnakeBrain destroyed!\n");
-	}
+	virtual ~SnakeBrain();
 
 	void SetInput(const InputData& input) { m_inputData = input; }
 	virtual void Update(Snake* pSnake) = 0;

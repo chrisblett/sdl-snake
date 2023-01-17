@@ -1,6 +1,7 @@
 #include "SDLAppRenderer.h"
-#include "../Engine/Math/Vector2.h"
-#include "../Engine/SDLWindow.h"
+#include "Math/Vector2.h"
+#include "SDLWindow.h"
+#include "Util.h"
 
 #include <cassert>
 #include <cstdio>
@@ -35,7 +36,7 @@ SDLAppRenderer::~SDLAppRenderer()
 	SDL_DestroyRenderer(m_pRenderer);
 	m_pRenderer = nullptr;
 
-	printf("SDLAppRenderer has been successfully destroyed\n");
+	Util::DebugPrint("SDLAppRenderer has been successfully destroyed\n");
 }
 
 void SDLAppRenderer::SetWorldTransform(const Vector2& screenSpaceOrigin,

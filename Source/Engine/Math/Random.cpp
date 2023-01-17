@@ -1,4 +1,5 @@
 #include "Random.h"
+#include "../Util.h"
 
 #include <random>
 
@@ -7,7 +8,7 @@ std::mt19937 Random::s_rng;
 void Random::Init()
 {
 	Seed();
-	printf("Random engine initialised\n");
+	Util::DebugPrint("Random engine initialised\n");
 }
 
 void Random::Seed()
