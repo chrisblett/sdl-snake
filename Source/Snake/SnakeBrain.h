@@ -30,6 +30,7 @@ public:
 	virtual void Update(Snake* pSnake) override;
 };
 
+#if _DEBUG
 // Brain used when debugging
 class DebugBrain : public SnakeBrain
 {
@@ -37,3 +38,4 @@ public:
 	virtual void Update(Snake* pSnake) override;
 
 };
+#endif

@@ -15,6 +15,7 @@ void NormalBrain::Update(Snake* pSnake)
 	pSnake->Simulate(m_inputData.pLastInputDir);
 }
 
+#if _DEBUG
 void DebugBrain::Update(Snake* pSnake)
 {
 	// Eat requested?
@@ -30,3 +31,4 @@ void DebugBrain::Update(Snake* pSnake)
 		pSnake->Simulate(m_inputData.pLastInputDir);
 	}
 }
+#endif
