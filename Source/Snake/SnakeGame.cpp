@@ -36,7 +36,7 @@ namespace
 	constexpr float SNAKE_DELAY = 1.0f / SNAKE_SPEED; // Delay between snake updates in seconds
 
 	constexpr int NORMAL_CELL_SIZE = 32;
-	constexpr int DEBUG_CELL_SIZE  = 96; // This value can be experimental
+	constexpr int DEBUG_CELL_SIZE  = 128; // This value can be experimental
 }
 
 const int SnakeGame::CELL_SIZE = NORMAL_CELL_SIZE;
@@ -98,7 +98,6 @@ bool SnakeGame::Init()
 
 	// Create snake brain
 	m_pBrain = make_unique<NormalBrain>();
-	//m_pBrain = make_unique<DebugBrain>();
 
 	Vector2 worldOriginScreenSpace = CalculateRenderOrigin(winSize.w, winSize.h, worldWidth, worldHeight);
 	GetGraphics().GetRenderer().SetWorldTransform(worldOriginScreenSpace, CELL_SIZE);
@@ -228,7 +227,7 @@ void SnakeGame::Update()
 
 		if (status == STATUS_DEAD || status == STATUS_DONE)
 		{
-			DebugPrint("Snake died!\n");
+			DebugPrint("Game ended.\n");
 
 			const Snake* pSnake = m_pWorld->GetSnake();
 			printf("%s (Length: %d)\n", GetGameOverMessage(status), pSnake->GetLength());

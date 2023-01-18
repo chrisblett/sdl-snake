@@ -45,7 +45,7 @@ bool SDLApp::InitSDL()
 	// Attempt to create to window
 	SDL_Window* pWindow = SDL_CreateWindow(
 		"SDLApp", // Title
-		100,      // Top left x-coordinate
+		100,	  // Top left x-coordinate
 		100,      // Top left y-coordinate
 		800,      // Width
 		600,      // Height

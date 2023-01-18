@@ -153,11 +153,8 @@ void World::GenerateFood()
 	assert(pFreeCells.size() == (m_cells.Size() - m_pSnake->GetLength()));
 
 	// No more food can be generated
-	if (pFreeCells.empty())
-	{
-		m_noFoodLeft = true;
-		return;
-	}
+	m_noFoodLeft = pFreeCells.empty();
+	if (m_noFoodLeft) return;
 
 	assert(!pFreeCells.empty());
 
