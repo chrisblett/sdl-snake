@@ -36,7 +36,7 @@ namespace
 	constexpr float SNAKE_DELAY = 1.0f / SNAKE_SPEED; // Delay between snake updates in seconds
 
 	constexpr int NORMAL_CELL_SIZE = 32;
-	constexpr int DEBUG_CELL_SIZE  = 96;
+	constexpr int DEBUG_CELL_SIZE  = 96; // This value can be experimental
 }
 
 const int SnakeGame::CELL_SIZE = NORMAL_CELL_SIZE;

@@ -59,15 +59,8 @@ SnakeStatus World::Update(SnakeBrain& brain)
 		return STATUS_DONE;
 	}
 
-	// Clear all cells
-	for (int y = 0; y < m_cells.Height(); y++)
-	{
-		for (int x = 0; x < m_cells.Width(); x++)
-		{
-			m_cells.Get(x, y).free = true;
-		}
-	}
-	// Don't lose data about the food
+	// Clear all cells, however don't clear the cell holding the food
+	ClearAll();
 	m_pFoodLocation->free = false;
 
 	m_pSnake->Update(brain);
@@ -87,12 +80,31 @@ SnakeStatus World::Update(SnakeBrain& brain)
 
 		GenerateFood();
 	}
+
 	return STATUS_ACTIVE;
+}
+
+void World::Render(const SDLAppRenderer& renderer) const
+{
+	// Draw the world
+#define GROUND_COLOUR 159, 122, 86, 255
+	renderer.SetDrawColour(GROUND_COLOUR);
+
+	renderer.FillRect(
+		renderer.WorldToScreen(0, 0, static_cast<float>(m_worldWidth), static_cast<float>(m_worldHeight)));
+
+	// Draw food
+	m_pFood->Draw(
+		renderer,
+		renderer.WorldToScreen(m_pFoodLocation->position.x, m_pFoodLocation->position.y, 1, 1),
+		0.0f);
+
+	m_pSnake->Render(renderer);
 }
 
 void World::OccupyCell(int x, int y)
 {
-	if (!InBounds(x, y)) assert(0);
+	assert(InBounds(x, y));
 
 	m_cells.Get(x, y).free = false;
 }
@@ -117,95 +129,6 @@ bool World::IsFree(int x, int y) const
 	return m_cells.Get(x, y).free;
 }
 
-void World::Render(const SDLAppRenderer& renderer) const
-{
-	// Draw the world
-#define GROUND_COLOUR 159, 122, 86, 255
-	renderer.SetDrawColour(GROUND_COLOUR);
-
-	renderer.FillRect( 
-		renderer.WorldToScreen(0, 0, static_cast<float>(m_worldWidth), static_cast<float>(m_worldHeight)));
-
-	// Draw food
-	m_pFood->Draw(
-		renderer, 
-		renderer.WorldToScreen(m_pFoodLocation->position.x, m_pFoodLocation->position.y, 1, 1),
-		0.0f);
-
-	// Debug drawing
-	//RenderCellInfo(renderer);
-	//RenderGrid(renderer);
-	m_pSnake->Render(renderer);
-}
-
-void World::RenderCellInfo(const SDLAppRenderer& renderer) const
-{
-	for (int y = 0; y < m_cells.Height(); y++)
-	{
-		for (int x = 0; x < m_cells.Width(); x++)
-		{
-			// Colour each cell differently depending on if it's occupied
-			const Cell& cell = m_cells.Get(x, y);
-			if (cell.free)
-			{
-				// Free cells are blue
-				renderer.SetDrawColour(0, 0, 32, 255);
-			}
-			else
-			{
-				// Occupied cells are red
-				renderer.SetDrawColour(32, 0, 0, 255);
-			}
-
-			renderer.FillRect(renderer.WorldToScreen(
-				static_cast<float>(x),
-				static_cast<float>(y), 1, 1)
-			);
-		}
-	}
-}
-
-void World::RenderGrid(const SDLAppRenderer& renderer) const
-{
-	// Set grid colour
-	renderer.SetDrawColour(255, 255, 255, 255);
-
-	// Draw row lines
-	for (int i = 0; i <= m_worldHeight; i++)
-	{
-		Vector2 start(0, 1.0f * i);
-		Vector2 end(1.0f * m_worldWidth, 1.0f * i);
-
-		renderer.DrawLine(
-			renderer.WorldToScreen(start),
-			renderer.WorldToScreen(end)
-		);
-	}
-
-	// Draw column lines
-	for (int i = 0; i <= m_worldWidth; i++)
-	{
-		Vector2 start(1.0f * i, 0);
-		Vector2 end(1.0f * i, 1.0f * m_worldHeight);
-
-		renderer.DrawLine(
-			renderer.WorldToScreen(start),
-			renderer.WorldToScreen(end)
-		);
-	}
-}
-
-void World::ClearAll()
-{
-	for (int y = 0; y < m_cells.Height(); y++)
-	{
-		for (int x = 0; x < m_cells.Width(); x++)
-		{
-			m_cells.Get(x, y).free = true;
-		}
-	}
-}
-
 void World::GenerateFood()
 {
 	std::vector<Cell*> pFreeCells;
@@ -227,7 +150,7 @@ void World::GenerateFood()
 
 	// If this fails, there's a good chance we forgot to mark the snake's 
 	// occupied cells or it is out-of-date.
-	assert( pFreeCells.size() == (m_cells.Size() - m_pSnake->GetLength()) );
+	assert(pFreeCells.size() == (m_cells.Size() - m_pSnake->GetLength()));
 
 	// No more food can be generated
 	if (pFreeCells.empty())
@@ -244,4 +167,71 @@ void World::GenerateFood()
 	// Place food at chosen cell
 	m_pFoodLocation = pFreeCells[index];
 	m_pFoodLocation->free = false;
+}
+
+void World::ClearAll()
+{
+	for (int y = 0; y < m_cells.Height(); y++)
+	{
+		for (int x = 0; x < m_cells.Width(); x++)
+		{
+			m_cells.Get(x, y).free = true;
+		}
+	}
+}
+
+void WorldDebugDraw::RenderCellFreeStatus(const World& world, const SDLAppRenderer& renderer)
+{
+	for (int y = 0; y < world.GetHeight(); y++)
+	{
+		for (int x = 0; x < world.GetWidth(); x++)
+		{
+			const Cell& cell = world.GetCell(x, y);
+			if (cell.free)
+			{
+				// Free cells are blue
+				renderer.SetDrawColour(0, 0, 32, 255);
+			}
+			else
+			{
+				// Occupied cells are red
+				renderer.SetDrawColour(32, 0, 0, 255);
+			}
+
+			renderer.FillRect(renderer.WorldToScreen(
+				static_cast<float>(x),
+				static_cast<float>(y), 1, 1)
+			);
+		}
+	}
+}
+
+void WorldDebugDraw::RenderGrid(const World& world, const SDLAppRenderer& renderer)
+{
+	// Set grid colour
+	renderer.SetDrawColour(255, 255, 255, 255);
+
+	// Draw row lines
+	for (int i = 0; i <= world.GetHeight(); i++)
+	{
+		Vector2 start(0, 1.0f * i);
+		Vector2 end(1.0f * world.GetWidth(), 1.0f * i);
+
+		renderer.DrawLine(
+			renderer.WorldToScreen(start),
+			renderer.WorldToScreen(end)
+		);
+	}
+
+	// Draw column lines
+	for (int i = 0; i <= world.GetWidth(); i++)
+	{
+		Vector2 start(1.0f * i, 0);
+		Vector2 end(1.0f * i, 1.0f * world.GetHeight());
+
+		renderer.DrawLine(
+			renderer.WorldToScreen(start),
+			renderer.WorldToScreen(end)
+		);
+	}
 }
