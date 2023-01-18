@@ -52,7 +52,7 @@ using Util::DebugPrint;
 
 static const char* GetGameOverMessage(SnakeStatus status)
 {
-	if (status == STATUS_DEAD) return "You lost! Game Over";
+	if (status == STATUS_DEAD) return "You lost! Game Over!";
 	if (status == STATUS_DONE) return "You won! Well done!";
 
 	assert(0); // Shouldn't get here
@@ -229,7 +229,10 @@ void SnakeGame::Update()
 		if (status == STATUS_DEAD || status == STATUS_DONE)
 		{
 			DebugPrint("Snake died!\n");
-			printf("%s\n", GetGameOverMessage(status));
+
+			const Snake* pSnake = m_pWorld->GetSnake();
+			printf("%s (Length: %d)\n", GetGameOverMessage(status), pSnake->GetLength());
+
 			DoGameOver();
 		}
 	}
@@ -270,12 +273,12 @@ void SnakeGame::DoGameOver()
 void SnakeGame::Restart()
 {
 	DebugPrint("Restarting game...\n");
-	m_gameOver = false;
-
-	m_pLastInputDir = nullptr;
-	m_nextUpdateTime = 0.0f;
 
 	m_pWorld->Reset();
+
+	m_nextUpdateTime = 0.0f;
+	m_pLastInputDir = nullptr;
+	m_gameOver = false;
 }
 
 Vector2 SnakeGame::CalculateRenderOrigin(int renderAreaW, int renderAreaH,

@@ -225,7 +225,8 @@ void World::GenerateFood()
 	}
 	pFreeCells.shrink_to_fit();
 
-	// If this fails, there's a good chance we forgot to mark the snake's occupied cells or it is out-of-date.
+	// If this fails, there's a good chance we forgot to mark the snake's 
+	// occupied cells or it is out-of-date.
 	assert( pFreeCells.size() == (m_cells.Size() - m_pSnake->GetLength()) );
 
 	// No more food can be generated

@@ -25,6 +25,7 @@ Snake::Snake(World& world, int worldWidth, int worldHeight)
 	: m_graphics(worldWidth * worldHeight)
 	, m_world(world)
 	, m_startPos(CalcSnakeStartPos(worldWidth, worldHeight))
+	, m_dead(true)
 {
 	// Allocate segments
 	m_segments.resize(worldWidth * worldHeight);
@@ -41,17 +42,19 @@ Snake::~Snake()
 
 void Snake::Init()
 {
-	m_dead = false;
 	m_numSegments = 1;
 	m_growCounter = 0;
 
 	m_pDir = &SnakeGame::EAST;
 	GetHead().position = m_startPos;
 
+	// Artifically grow the snake to its starting length
 	EatFood(2);
 	Grow();
 	Grow();
-	
+
+	m_dead = false;
+
 	MarkOccupiedCells();
 
 	m_graphics.Init(*this);
@@ -163,7 +166,11 @@ void Snake::Grow()
 	m_growCounter--;
 	if (m_growCounter == 0)
 	{
-		printf("Length: %d\n", m_numSegments);
+		// Only print out when the player is playing
+		if (!m_dead)
+		{
+			printf("Length: %d\n", m_numSegments);
+		}
 	}
 }
 

@@ -66,6 +66,7 @@ private:
 	World&               m_world;
 	const Vector2*       m_pDir;
 	size_t               m_numSegments;
+
 	// The remaining number of times the snake must grow after eating a piece of food,
 	// the snake grows once per world update.
 	int                  m_growCounter; 
