@@ -230,7 +230,7 @@ void SnakeGame::Update()
 			DebugPrint("Game ended.\n");
 
 			const Snake* pSnake = m_pWorld->GetSnake();
-			printf("%s (Length: %d)\n", GetGameOverMessage(status), pSnake->GetLength());
+			printf("%s (Length: %zu)\n", GetGameOverMessage(status), pSnake->GetLength());
 
 			DoGameOver();
 		}

@@ -84,7 +84,7 @@ void Snake::HandleGrowth()
 		// Snake has finished growing
 		if (m_growCounter == 0)
 		{
-			printf("Length: %d\n", m_numSegments);
+			printf("Length: %zu\n", m_numSegments);
 		}
 	}
 }

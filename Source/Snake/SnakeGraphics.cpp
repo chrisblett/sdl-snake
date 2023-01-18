@@ -59,7 +59,7 @@ void SnakeGraphics::Init(const Snake& snake)
 
 	SetSegmentGraphic(SEGMENT_HEAD, snakeAngleWorld, Snake::HEAD_INDEX);
 	SetSegmentGraphic(SEGMENT_BODY, m_segmentGraphics[Snake::HEAD_INDEX].angle, Snake::NECK_INDEX);
-	SetSegmentGraphic(SEGMENT_TAIL, snakeAngleWorld, snake.GetLength() - 1);
+	SetSegmentGraphic(SEGMENT_TAIL, snakeAngleWorld, static_cast<int>( snake.GetLength() ) - 1);
 }
 
 void SnakeGraphics::Update(const Snake& snake, SnakeTurnData* pTurnData)
@@ -86,7 +86,7 @@ void SnakeGraphics::Update(const Snake& snake, SnakeTurnData* pTurnData)
 	}
 
 	const auto& snakeSegments = snake.GetSegments();
-	int tailIndex = snake.GetLength() - 1;
+	int tailIndex = static_cast<int>( snake.GetLength() ) - 1;
 
 	SetSegmentGraphic(
 		SEGMENT_TAIL,

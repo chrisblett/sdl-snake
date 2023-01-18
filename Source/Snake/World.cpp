@@ -159,7 +159,7 @@ void World::GenerateFood()
 	assert(!pFreeCells.empty());
 
 	// Select a random free cell 
-	size_t index = Random::GetInt(0, pFreeCells.size() - 1);
+	size_t index = Random::GetInt( 0, static_cast<int>( pFreeCells.size() ) - 1 );
 
 	// Place food at chosen cell
 	m_pFoodLocation = pFreeCells[index];
