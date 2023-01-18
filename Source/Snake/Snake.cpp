@@ -25,7 +25,6 @@ Snake::Snake(World& world, int worldWidth, int worldHeight)
 	: m_graphics(worldWidth * worldHeight)
 	, m_world(world)
 	, m_startPos(CalcSnakeStartPos(worldWidth, worldHeight))
-	, m_dead(true)
 {
 	// Allocate segments
 	m_segments.resize(worldWidth * worldHeight);
@@ -44,16 +43,14 @@ void Snake::Init()
 {
 	m_numSegments = 1;
 	m_growCounter = 0;
+	m_pDir        = &SnakeGame::EAST;
+	m_dead        = false;
 
-	m_pDir = &SnakeGame::EAST;
 	GetHead().position = m_startPos;
 
-	// Artifically grow the snake to its starting length
-	EatFood(2);
-	Grow();
-	Grow();
-
-	m_dead = false;
+	// Artifically grow the head of the snake to its starting length
+	for (size_t i = 1; i < INITIAL_LENGTH; i++)
+		Grow();
 
 	MarkOccupiedCells();
 
@@ -76,13 +73,25 @@ void Snake::Render(const SDLAppRenderer& renderer) const
 	m_graphics.Render(renderer, *this);
 }
 
-void Snake::Simulate(const Vector2* pInputDir)
+void Snake::HandleGrowth()
 {
 	// Grow the snake if needed
 	if (m_growCounter > 0)
 	{
 		Grow();
+		m_growCounter--;
+
+		// Snake has finished growing
+		if (m_growCounter == 0)
+		{
+			printf("Length: %d\n", m_numSegments);
+		}
 	}
+}
+
+void Snake::Simulate(const Vector2* pInputDir)
+{
+	HandleGrowth();
 
 	const Vector2* pPrevSnakeDir = 0;
 	Move(pInputDir, pPrevSnakeDir);
@@ -138,7 +147,6 @@ void Snake::Move(const Vector2* pInputDir, const Vector2*& pPrevDir)
 
 void Snake::Grow()
 {
-	assert(m_growCounter > 0);
 	assert(m_numSegments > 0 && m_numSegments < m_segments.size());
 
 	const size_t lastSegmentIndex = m_numSegments - 1;
@@ -162,16 +170,6 @@ void Snake::Grow()
 	}
 	// Position the new segment behind where the last segment is facing
 	m_segments[m_numSegments++].position = lastSegmentPos + (-1.0f * segmentDir);
-
-	m_growCounter--;
-	if (m_growCounter == 0)
-	{
-		// Only print out when the player is playing
-		if (!m_dead)
-		{
-			printf("Length: %d\n", m_numSegments);
-		}
-	}
 }
 
 void Snake::MarkOccupiedCells()

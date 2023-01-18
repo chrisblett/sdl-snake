@@ -44,12 +44,14 @@ public:
 
 	static constexpr size_t HEAD_INDEX = 0;
 	static constexpr size_t NECK_INDEX = 1;
+	static constexpr size_t INITIAL_LENGTH = 3;
 
 private:
 	// Sets snake to its starting state
 	void Init();
 
 	void Move(const Vector2* pInputDir, const Vector2*& pPrevDir);
+	void HandleGrowth();
 	void Grow();
 
 	// Marks any cells the snake is over as being occupied
@@ -67,8 +69,8 @@ private:
 	const Vector2*       m_pDir;
 	size_t               m_numSegments;
 
-	// The remaining number of times the snake must grow after eating a piece of food,
-	// the snake grows once per world update.
+	// Tracks the remaining number of times the snake has to grow
+	// since growing to a particular length spans multiple updates
 	int                  m_growCounter; 
 	bool                 m_dead;
 };

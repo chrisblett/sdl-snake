@@ -53,7 +53,7 @@ SnakeGraphics::SnakeGraphics(int maxSegments)
 void SnakeGraphics::Init(const Snake& snake)
 {
 	// Should only be called after snake has been initialised
-	assert(snake.GetLength() == 3);
+	assert(snake.GetLength() == Snake::INITIAL_LENGTH);
 
 	const float snakeAngleWorld = WorldUtil::WorldVecToAngle(snake.GetDirection());
 
