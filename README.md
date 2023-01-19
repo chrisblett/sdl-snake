@@ -12,7 +12,7 @@ Visual Studio 2022
 
 Instructions
 ------------
-1. After obtaining a copy of the project, unzip `3rdParty.zip` to the root (this will automatically add the contained directories and files into the project)
+1. After obtaining a copy of the project, unzip `3rdParty.zip` to the root — which will automatically add the contents under `Source`
 2. Open `Source\Snake\Snake.sln`
 3. Configure the platform and target if necessary, and then build and run
 
